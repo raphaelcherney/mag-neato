@@ -69,6 +69,7 @@ int main(void)
 	//update_motor_state(global_state);
 	usart_init();
 	led_set(UNDER);
+	led_set(GREEN);
 	
 	while(1)
     {
