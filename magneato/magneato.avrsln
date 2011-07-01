@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# AvrStudio Solution File, Format Version 11.00
+Project("{D1100916-62DA-4D80-A9B4-55A1E7CCEEB3}") = "magneato", "magneato\magneato.avrgccproj", "{DDB2544A-7D1A-4776-9A3E-064450447A5B}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDB2544A-7D1A-4776-9A3E-064450447A5B}.Debug|AVR.ActiveCfg = Debug|AVR
+		{DDB2544A-7D1A-4776-9A3E-064450447A5B}.Debug|AVR.Build.0 = Debug|AVR
+		{DDB2544A-7D1A-4776-9A3E-064450447A5B}.Release|AVR.ActiveCfg = Release|AVR
+		{DDB2544A-7D1A-4776-9A3E-064450447A5B}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
