@@ -40,10 +40,16 @@ extern float global_color_change[6][4];
 extern char global_color_new;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
+extern float white[4];
+extern float black[4];
+extern float red[4];
+extern float green[4];
+extern float blue[4];
 
 /* ---MAIN FUNCTION--- */
 int main(void)
 {
+	char string[12];
 	unsigned int x, y, z;
 	unsigned int c0, c1, c2, c3, c4, c5;
 	float P, I, D;
@@ -51,7 +57,8 @@ int main(void)
 	coordinate accel;
 	int temp;
 	char i, j;
-	char flag;
+	char white_flag, black_flag, red_flag, green_flag, blue_flag;
+	float white_dif, black_dif, red_dif, green_dif, blue_dif;
 	float change[6][4];
 	
 	led_set(UNDER);
@@ -72,13 +79,56 @@ int main(void)
 	//enable_motors();
 	//global_state = MID_LEFT;
 	//update_motor_state(global_state);
-	//usart_init();
+	usart_init();
 	led_set(UNDER);
 	//led_set(GREEN);
 	
 	while(1)
     {
-		if (global_color_change[2][0] > 0.2)
+		for (i=0; i<6; i++)
+		{
+			for (j=0; j<4; j++)
+			{
+				white_dif += fabs(global_color_change[i][j] - white[j]);
+				black_dif += fabs(global_color_change[i][j] - black[j]);
+				red_dif += fabs(global_color_change[i][j] - red[j]);
+				green_dif += fabs(global_color_change[i][j] - green[j]);
+				blue_dif += fabs(global_color_change[i][j] - blue[j]);
+				// smallest difference should be color
+			}
+			if (black_dif<white_dif && black_dif<red_dif && black_dif<green_dif && black_dif<blue_dif)
+			{
+				black_flag = 1;
+			}
+			else if (red_dif<white_dif && red_dif<black_dif && red_dif<green_dif && red_dif<blue_dif)
+			{
+				red_flag = 1;
+			}
+			else if (green_dif<white_dif && green_dif<black_dif && green_dif<red_dif && green_dif<blue_dif)
+			{
+				green_flag = 1;
+			}
+			else if (blue_dif<white_dif && blue_dif<black_dif && blue_dif<red_dif && blue_dif<green_dif)
+			{
+				blue_flag = 1;
+			}
+			else
+			{
+				white_flag = 1;
+			}
+			
+			dtostrf(black_dif, 10, 5, string);
+			usart_transmit_string(string);
+			usart_transmit_char(12);
+			
+			white_dif = 0;
+			black_dif = 0;
+			red_dif = 0;
+			green_dif = 0;
+			blue_dif = 0;
+		}
+		
+		if (blue_flag)
 		{
 			led_set(BLUE);
 		}
@@ -86,6 +136,39 @@ int main(void)
 		{
 			led_clear(BLUE);
 		}
+		
+		if (red_flag)
+		{
+			led_set(RED);
+		}
+		else
+		{
+			led_clear(RED);
+		}
+		
+		if (green_flag)
+		{
+			led_set(GREEN);
+		}
+		else
+		{
+			led_clear(GREEN);
+		}
+		
+		if (black_flag)
+		{
+			led_set(YELLOW);
+		}
+		else
+		{
+			led_clear(YELLOW);
+		}
+		
+		white_flag = 0;
+		black_flag = 0;
+		red_flag = 0;
+		green_flag = 0;
+		blue_flag = 0;
 		
 		/*
 		for (i=0; i<6; i++)
