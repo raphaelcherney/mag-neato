@@ -7,6 +7,10 @@
 
 /* ---AVR HEADER FILES--- */
 #include <avr/io.h>
+#include <stdlib.h>
+
+/* ---LOCAL HEADER FILES--- */
+#include "usart.h"
 
 /* ---FUNCTION DEFINITIONS--- */
 void usart_init(void)
@@ -23,6 +27,30 @@ void usart_transmit_char(unsigned char data)
 	USARTC0.DATA = data;					// send the data
 }
 
+void usart_transmit_int(int data)
+{
+	char string[6];
+	
+	itoa(data, string, 10);
+	usart_transmit_string(string);
+}
+
+void usart_transmit_unsigned_int(unsigned int data)
+{
+	char string[6];
+	
+	utoa(data, string, 10);
+	usart_transmit_string(string);
+}
+
+void usart_transmit_float(float data)
+{
+	char string[10];
+	
+	dtostrf(data, 8, 6, string);
+	usart_transmit_string(string);
+}
+
 void usart_transmit_string(const char *str)
 {
 	while (*str)
@@ -31,3 +59,4 @@ void usart_transmit_string(const char *str)
 		str++;
 	}
 }
+
