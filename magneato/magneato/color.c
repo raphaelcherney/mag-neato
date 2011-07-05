@@ -18,6 +18,11 @@ unsigned int global_color_calibrate[6][4];
 float global_color_change[6][4];
 char global_color_sensor_count;
 char global_color_filter;
+float white[4] = {0, 0, 0, 0};
+float black[4] = {1, 0.9, 1, 1};
+float red[4] = {0.35, 0.1, 0.5, 0.5};
+float green[4] = {0.2, 0.4, 0.15, 0.17};
+float blue[4] = {0.4, 0.9, 0.4, 0.18};
 
 /* ---FUNCTION DEFINITIONS--- */
 void color_set_filter(char color)
@@ -130,6 +135,7 @@ void color_update(void)
 					color_set_filter(CLEAR);
 					global_color_filter = 0;
 					color_change();
+					//color_transmit_change();
 					break;
 			}
 			break;
@@ -162,7 +168,7 @@ void color_change(void)
 	}
 }
 
-void color_transmit(void)
+void color_transmit_value(void)
 {
 	char string[6];
 	
@@ -250,6 +256,94 @@ void color_transmit(void)
 	utoa(global_color_value[5][3], string, 10);
 	usart_transmit_string(string);
 	usart_transmit_char(12);
+}
+
+void color_transmit_change(void)
+{
+	char string[12];
+	
+	usart_transmit_string("S0:");
 	usart_transmit_char(9);
+	dtostrf(global_color_change[0][0], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[0][1], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[0][2], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[0][3], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(12);
+	usart_transmit_string("S1:");
+	usart_transmit_char(9);
+	dtostrf(global_color_change[1][0], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[1][1], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[1][2], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[1][3], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(12);
+	usart_transmit_string("S2:");
+	usart_transmit_char(9);
+	dtostrf(global_color_change[2][0], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[2][1], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[2][2], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[2][3], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(12);
+	usart_transmit_string("S3:");
+	usart_transmit_char(9);
+	dtostrf(global_color_change[3][0], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[3][1], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[3][2], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[3][3], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(12);
+	usart_transmit_string("S4:");
+	usart_transmit_char(9);
+	dtostrf(global_color_change[4][0], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[4][1], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[4][2], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[4][3], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(12);
+	usart_transmit_string("S5:");
+	usart_transmit_char(9);
+	dtostrf(global_color_change[5][0], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[5][1], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[5][2], 10, 5, string);
+	usart_transmit_string(string);
+	usart_transmit_char(9);
+	dtostrf(global_color_change[5][3], 10, 5, string);
+	usart_transmit_string(string);
 	usart_transmit_char(12);
 }

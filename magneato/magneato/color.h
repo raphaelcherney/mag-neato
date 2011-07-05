@@ -16,6 +16,7 @@ void color_init(void);
 void color_update(void);
 void color_calibrate(void);
 void color_change(void);
-void color_transmit(void);
+void color_transmit_value(void);
+void color_transmit_change(void);
 
 #endif /* COLOR_H */
