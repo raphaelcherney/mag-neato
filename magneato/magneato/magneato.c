@@ -117,8 +117,11 @@ int main(void)
 				white_flag = 1;
 			}
 			
-			dtostrf(black_dif, 10, 5, string);
-			usart_transmit_string(string);
+			usart_transmit_string("green_dif: ");
+			usart_transmit_float(green_dif);
+			usart_transmit_char(12);
+			usart_transmit_string("blue_dif: ");
+			usart_transmit_float(blue_dif);
 			usart_transmit_char(12);
 			
 			white_dif = 0;
