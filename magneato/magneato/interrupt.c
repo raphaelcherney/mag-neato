@@ -80,15 +80,7 @@ ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
-	char i, j;
-	
-	for (i=0; i<6; i++)
-	{
-		for (j=0; j<4; j++)
-		{
-			global_color_calibrate[i][j] = global_color_value[i][j];
-		}
-	}
+	color_calibrate();
 }
 
 /*

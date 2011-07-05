@@ -114,6 +114,9 @@
     <Compile Include="color.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="global.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="global.h">
       <SubType>compile</SubType>
     </Compile>
@@ -121,6 +124,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="interrupt.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ir.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ir.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="led.c">

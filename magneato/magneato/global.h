@@ -6,8 +6,8 @@
  */ 
 
 
-#ifndef GLOBAL_H_
-#define GLOBAL_H_
+#ifndef GLOBAL_H
+#define GLOBAL_H
 
 /* ---CUSTOM STRUCTURES--- */
 typedef struct {
@@ -46,4 +46,7 @@ typedef struct {
 #define HIGH 102
 #define ALL	103
 
-#endif /* GLOBAL_H_ */
+/* ---FUNCTION PROTOTYPES--- */
+float percent_change(float number, float reference);
+
+#endif /* GLOBAL_H */
