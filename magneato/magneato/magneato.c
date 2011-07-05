@@ -20,19 +20,24 @@
 #include "led.h"
 #include "color.h"
 #include "usart.h"
+#include "ir.h"
 
 /* ---FUNCTION PROTOTYPES--- */
 void init(void);
-void enable_ir(void);
-void disable_ir(void);
-void set_ir_threshold(char level);
-void change_ir_threshold(signed char amount);
+void ir_enable(void);
+void ir_disable(void);
+void ir_set_threshold(char level);
+void ir_change_threshold(signed char amount);
 void update_motor_state(char state);
+void color_change(void);
+float percent_change(float number, float reference);
 
 /* ---GLOBAL VARIABLES--- */
 char global_state = STOP;
 extern unsigned int global_color_value[6][4];
 extern unsigned int global_color_calibrate[6][4];
+extern float global_color_change[6][4];
+extern char global_color_new;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
 
@@ -45,15 +50,15 @@ int main(void)
 	float actual, desired, error, integral, derivative, last_error, control;
 	coordinate accel;
 	int temp;
-	unsigned char i;
+	char i, j;
 	char flag;
-	
+	float change[6][4];
 	
 	led_set(UNDER);
 	
 	init();
 	
-	//enable_ir();
+	//ir_enable();
 	//set_ir_threshold(52);
 	
 	led_clear_all();
@@ -67,12 +72,22 @@ int main(void)
 	//enable_motors();
 	//global_state = MID_LEFT;
 	//update_motor_state(global_state);
-	usart_init();
+	//usart_init();
 	led_set(UNDER);
-	led_set(GREEN);
+	//led_set(GREEN);
 	
 	while(1)
     {
+		if (global_color_change[2][0] > 0.2)
+		{
+			led_set(BLUE);
+		}
+		else
+		{
+			led_clear(BLUE);
+		}
+		
+		/*
 		for (i=0; i<6; i++)
 		{
 			if ((global_color_value[i][0]+global_color_value[i][1]+global_color_value[i][2]+global_color_value[i][3])
@@ -90,7 +105,8 @@ int main(void)
 		{
 			led_clear(BLUE);
 		}
-		flag = 0;					
+		flag = 0;	
+		*/				
     }
 }
 
@@ -150,30 +166,6 @@ void init(void)
 	ACA.CTRLB = 63;					// set initial scaled VCC level
 	//ACA.AC0CTRL = 0b11101101;		// trigger MID level interrupt on rising edge using high-speed mode and large hysteresis
 	//ACA.AC1CTRL = 0b11101101;		// enable ACA1 with same settings
-}
-
-void enable_ir(void)
-{
-	PORTA.OUTSET = 0b00000001;
-}
-
-void disable_ir(void)
-{
-	PORTA.OUTCLR = 0b00000001;
-}
-
-void set_ir_threshold(char level)
-{
-	ACA.CTRLB = level;	// set scaled VCC level
-}
-
-void change_ir_threshold(signed char amount)
-{
-	char level;
-	
-	level = ACA.CTRLB;
-	level = level + amount;
-	ACA.CTRLB = level;
 }
 
 void update_motor_state(char state)

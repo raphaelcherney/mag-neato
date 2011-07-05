@@ -15,6 +15,7 @@
 /* ---GLOBAL VARIABLES--- */
 unsigned int global_color_value[6][4];
 unsigned int global_color_calibrate[6][4];
+float global_color_change[6][4];
 char global_color_sensor_count;
 char global_color_filter;
 
@@ -128,9 +129,36 @@ void color_update(void)
 				case 3:
 					color_set_filter(CLEAR);
 					global_color_filter = 0;
+					color_change();
 					break;
 			}
 			break;
+	}
+}
+
+void color_calibrate(void)
+{
+	char i, j;
+	
+	for (i=0; i<6; i++)
+	{
+		for (j=0; j<4; j++)
+		{
+			global_color_calibrate[i][j] = global_color_value[i][j];
+		}
+	}
+}
+
+void color_change(void)
+{
+	char i, j;
+	
+	for (i=0; i<6; i++)
+	{
+		for (j=0; j<4; j++)
+		{
+			global_color_change[i][j] = percent_change((float)global_color_value[i][j], (float)global_color_calibrate[i][j]);
+		}
 	}
 }
 
