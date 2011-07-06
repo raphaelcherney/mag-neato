@@ -91,18 +91,6 @@ void motor_turn_arc(char direction, int left_motor_power, int right_motor_power)
 	}
 }
 
-
-void motor_init_encoders(void)
-{
-	ACB.AC0MUXCTRL = 0b00000111;	// use PB0 and scaled VCC for ACB0
-	ACB.AC1MUXCTRL = 0b00001111;	// use PB1 and scaled VCC for ACB1
-	ACA.CTRLB = 63;					// set initial scaled VCC level
-	ACB.AC0CTRL = 0b00101101;		// trigger MID level interrupt on both edges using high-speed mode and large hysteresis
-	ACB.AC1CTRL = 0b00101101;		// enable ACB1 with same settings
-	TCC0.CTRLA = 0b00000101;		// enable TCC0 with clk/64 (2 us period)
-	TCC1.CTRLA = 0b00000101;		// enable TCC1 with clk/64 (2 us period)
-}
-
 void motor_encoder_enable(void)
 {
 	PORTD.OUTSET = 0b10000000;		// turn on encoder emitter

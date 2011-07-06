@@ -31,6 +31,9 @@ void led_set(char led)
 		case UNDER:
 			PORTE.OUTSET = 0b00001000;
 			break;
+		case ALL:
+			PORTE.OUTCLR = 0b11111000;
+			break;
 	}	
 }
 
@@ -52,6 +55,9 @@ void led_toggle(char led)
 			break;
 		case UNDER:
 			PORTE.OUTTGL = 0b00001000;
+			break;
+		case ALL:
+			PORTE.OUTTGL = 0b11111000;
 			break;
 	}
 }
@@ -75,10 +81,8 @@ void led_clear(char led)
 		case UNDER:
 			PORTE.OUTCLR = 0b00001000;
 			break;
+		case ALL:
+			PORTE.OUTCLR = 0b11111000;
+			break;
 	}	
-}
-
-void led_clear_all(void)
-{
-	PORTE.OUTCLR = 0b1111100;
 }
