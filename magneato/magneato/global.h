@@ -28,6 +28,8 @@ typedef struct {
 #define BLUE 3
 #define YELLOW 4
 #define UNDER 5
+#define BLACK 6
+#define WHITE 7
 #define X 0			// accelerometer directions
 #define Y 1
 #define Z 2

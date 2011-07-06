@@ -18,11 +18,6 @@ unsigned int global_color_calibrate[6][4];
 float global_color_change[6][4];
 char global_color_sensor_count;
 char global_color_filter;
-float white[4] = {0, 0, 0, 0};
-float black[4] = {1, 0.9, 1, 1};
-float red[4] = {0.35, 0.1, 0.5, 0.5};
-float green[4] = {0.2, 0.4, 0.15, 0.17};
-float blue[4] = {0.4, 0.9, 0.4, 0.18};
 
 /* ---FUNCTION DEFINITIONS--- */
 void color_set_filter(char color)
