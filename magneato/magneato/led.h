@@ -13,6 +13,5 @@
 void led_set(char led);
 void led_toggle(char led);
 void led_clear(char led);
-void led_clear_all(void);
 
 #endif /* LED_H */

@@ -48,66 +48,26 @@ int main(void)
 	char colors[6];
 	
 	init();
-	led_set(UNDER);
+	led_clear(ALL);
 	
 	//enable_motors();
 	//global_state = MID_LEFT;
 	//update_motor_state(global_state);
 	//usart_init();
 	
-	//led_set(GREEN);
-	
 	while(1)
     {
-		colors[0] = WHITE;
-		colors[1] = WHITE;
-		colors[2] = WHITE;
-		colors[3] = WHITE;
-		colors[4] = WHITE;
-		colors[5] = WHITE;
-		
-		for (sensor=0; sensor<6; sensor++)
+		if (global_left_encoder < 40)
 		{
-			for (filter=0; filter<4; filter++)
-			{
-				if (global_color_change[sensor][filter] > 0.3)	// if percent change from calibration on any sensor is > 30%
-				{
-					if (global_color_change[sensor][0] > 0.5 &&
-						global_color_change[sensor][1] > 0.5 &&
-						global_color_change[sensor][2] > 0.5 &&
-						global_color_change[sensor][3] > 0.5)
-					{
-						colors[sensor] = BLACK;
-					}
-					else if (global_color_change[sensor][1] < global_color_change[sensor][2] && 
-							 global_color_change[sensor][1] < global_color_change[sensor][3])
-					{
-						colors[sensor] = RED;
-					}
-					else if (global_color_change[sensor][2] < global_color_change[sensor][1] && 
-							 global_color_change[sensor][2] < global_color_change[sensor][3])
-					{
-						colors[sensor] = GREEN;
-					}
-					else
-					{
-						colors[sensor] = BLUE;
-					}
-				}
-			}
+			motor_set_power(LEFT, FORWARD, MAX/2);
 		}
+		else motor_set_power(LEFT, STOP, 0);
 		
-		led_clear(YELLOW);
-		led_clear(RED);
-		led_clear(GREEN);
-		led_clear(BLUE);
-		for (sensor=0; sensor<6; sensor++)
+		if (global_right_encoder < 40)
 		{
-			if (colors[sensor] == BLACK) led_set(YELLOW);
-			if (colors[sensor] == RED) led_set(RED);
-			if (colors[sensor] == GREEN) led_set(GREEN);
-			if (colors[sensor] == BLUE) led_set(BLUE);
-		}			
+			motor_set_power(RIGHT, FORWARD, MAX/2);
+		}
+		else motor_set_power(RIGHT, STOP, 0);
     }
 }
 
@@ -149,11 +109,12 @@ void init(void)
 	/* ---MOTORS--- */
 	motor_set_power(LEFT, STOP, 0);
 	motor_set_power(RIGHT, STOP, 0);
-	motor_enable();
+	//motor_enable();
 	
 	/* ---ENCODERS--- */
+	
 	motor_encoder_enable();
-	motor_encoder_set_threshold(2);
+	motor_encoder_set_threshold(21);
 	
 	/* ---ACCELEROMETER--- */
 	accel_init();

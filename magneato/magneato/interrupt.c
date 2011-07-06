@@ -28,11 +28,13 @@ ISR(ACB_AC0_vect)		// LEFT WHEEL ENCODER
 {
 	unsigned int minimum_time;
 	
-	minimum_time =	34768 - (TCD0.CCA >> 1);		// define minimum pulse width off of motor power
+	//minimum_time =	34768 - (TCD0.CCA >> 1);		// define minimum pulse width off of motor power
+	minimum_time = 2000;
 	
 	if ((TCC0.CNT > minimum_time) || (TCC0.INTFLAGS & 0x01))	// if enough time has passed that it will not double count a transition...
 	{
 		global_left_encoder++;			// add encoder count
+		led_toggle(RED);
 		// TODO: this should be direction dependent!
 		TCC0.INTFLAGS = 0b00000001;		// clear flag
 	}
@@ -43,11 +45,13 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 {
 	unsigned int minimum_time;
 	
-	minimum_time =	34768 - (TCD1.CCB >> 1);	// define minimum pulse width off of motor power
+	//minimum_time =	34768 - (TCD1.CCB >> 1);	// define minimum pulse width off of motor power
+	minimum_time = 2000;
 	
 	if ((TCC1.CNT > minimum_time) || (TCC1.INTFLAGS & 0x01))	// if enough time has passed that it will not double count a transition...
 	{
-		global_left_encoder++;			// add encoder count
+		global_right_encoder++;			// add encoder count
+		led_toggle(YELLOW);
 		// TODO: this should be direction dependent!
 		TCC1.INTFLAGS = 0b00000001;		// clear flag
 	}
@@ -57,14 +61,12 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
 	motor_disable();
-	global_state = STOP;
 	led_set(RED);
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
 	motor_disable();
-	global_state = STOP;
 	led_set(RED);
 }
 
@@ -81,6 +83,7 @@ ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
 	color_calibrate();
+	motor_enable();
 }
 
 /*
