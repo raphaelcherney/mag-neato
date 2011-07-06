@@ -40,159 +40,74 @@ extern float global_color_change[6][4];
 extern char global_color_new;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
-extern float white[4];
-extern float black[4];
-extern float red[4];
-extern float green[4];
-extern float blue[4];
 
 /* ---MAIN FUNCTION--- */
 int main(void)
 {
-	char string[12];
-	unsigned int x, y, z;
-	unsigned int c0, c1, c2, c3, c4, c5;
-	float P, I, D;
-	float actual, desired, error, integral, derivative, last_error, control;
-	coordinate accel;
-	int temp;
-	char i, j;
-	char white_flag, black_flag, red_flag, green_flag, blue_flag;
-	float white_dif, black_dif, red_dif, green_dif, blue_dif;
-	float change[6][4];
-	
-	led_set(UNDER);
+	unsigned char sensor, filter;
+	char colors[6];
 	
 	init();
-	
-	//ir_enable();
-	//set_ir_threshold(52);
-	
-	led_clear_all();
-	
-	global_state = STOP;
-	desired = M_PI_2;	// set desired heading
-	P = 30000;
-	I = 50;
-	D = 0;
+	led_set(UNDER);
 	
 	//enable_motors();
 	//global_state = MID_LEFT;
 	//update_motor_state(global_state);
-	usart_init();
-	led_set(UNDER);
+	//usart_init();
+	
 	//led_set(GREEN);
 	
 	while(1)
     {
-		for (i=0; i<6; i++)
-		{
-			for (j=0; j<4; j++)
-			{
-				white_dif += fabs(global_color_change[i][j] - white[j]);
-				black_dif += fabs(global_color_change[i][j] - black[j]);
-				red_dif += fabs(global_color_change[i][j] - red[j]);
-				green_dif += fabs(global_color_change[i][j] - green[j]);
-				blue_dif += fabs(global_color_change[i][j] - blue[j]);
-				// smallest difference should be color
-			}
-			if (black_dif<white_dif && black_dif<red_dif && black_dif<green_dif && black_dif<blue_dif)
-			{
-				black_flag = 1;
-			}
-			else if (red_dif<white_dif && red_dif<black_dif && red_dif<green_dif && red_dif<blue_dif)
-			{
-				red_flag = 1;
-			}
-			else if (green_dif<white_dif && green_dif<black_dif && green_dif<red_dif && green_dif<blue_dif)
-			{
-				green_flag = 1;
-			}
-			else if (blue_dif<white_dif && blue_dif<black_dif && blue_dif<red_dif && blue_dif<green_dif)
-			{
-				blue_flag = 1;
-			}
-			else
-			{
-				white_flag = 1;
-			}
-			
-			usart_transmit_string("green_dif: ");
-			usart_transmit_float(green_dif);
-			usart_transmit_char(12);
-			usart_transmit_string("blue_dif: ");
-			usart_transmit_float(blue_dif);
-			usart_transmit_char(12);
-			
-			white_dif = 0;
-			black_dif = 0;
-			red_dif = 0;
-			green_dif = 0;
-			blue_dif = 0;
-		}
+		colors[0] = WHITE;
+		colors[1] = WHITE;
+		colors[2] = WHITE;
+		colors[3] = WHITE;
+		colors[4] = WHITE;
+		colors[5] = WHITE;
 		
-		if (blue_flag)
+		for (sensor=0; sensor<6; sensor++)
 		{
-			led_set(BLUE);
-		}
-		else
-		{
-			led_clear(BLUE);
-		}
-		
-		if (red_flag)
-		{
-			led_set(RED);
-		}
-		else
-		{
-			led_clear(RED);
-		}
-		
-		if (green_flag)
-		{
-			led_set(GREEN);
-		}
-		else
-		{
-			led_clear(GREEN);
-		}
-		
-		if (black_flag)
-		{
-			led_set(YELLOW);
-		}
-		else
-		{
-			led_clear(YELLOW);
-		}
-		
-		white_flag = 0;
-		black_flag = 0;
-		red_flag = 0;
-		green_flag = 0;
-		blue_flag = 0;
-		
-		/*
-		for (i=0; i<6; i++)
-		{
-			if ((global_color_value[i][0]+global_color_value[i][1]+global_color_value[i][2]+global_color_value[i][3])
-					> (global_color_calibrate[i][0]+global_color_calibrate[i][1]+global_color_calibrate[i][2]+global_color_calibrate[i][3]+70)) // there is a line
+			for (filter=0; filter<4; filter++)
 			{
-				flag = 1;
+				if (global_color_change[sensor][filter] > 0.3)	// if percent change from calibration on any sensor is > 30%
+				{
+					if (global_color_change[sensor][0] > 0.5 &&
+						global_color_change[sensor][1] > 0.5 &&
+						global_color_change[sensor][2] > 0.5 &&
+						global_color_change[sensor][3] > 0.5)
+					{
+						colors[sensor] = BLACK;
+					}
+					else if (global_color_change[sensor][1] < global_color_change[sensor][2] && 
+							 global_color_change[sensor][1] < global_color_change[sensor][3])
+					{
+						colors[sensor] = RED;
+					}
+					else if (global_color_change[sensor][2] < global_color_change[sensor][1] && 
+							 global_color_change[sensor][2] < global_color_change[sensor][3])
+					{
+						colors[sensor] = GREEN;
+					}
+					else
+					{
+						colors[sensor] = BLUE;
+					}
+				}
 			}
 		}
 		
-		if (flag == 1)
+		led_clear(YELLOW);
+		led_clear(RED);
+		led_clear(GREEN);
+		led_clear(BLUE);
+		for (sensor=0; sensor<6; sensor++)
 		{
-			led_set(BLUE);
-		}
-		else
-		{
-			led_clear(BLUE);
-		}
-		flag = 0;	
-		*/				
+			if (colors[sensor] == BLACK) led_set(YELLOW);
+			if (colors[sensor] == RED) led_set(RED);
+			if (colors[sensor] == GREEN) led_set(GREEN);
+			if (colors[sensor] == BLUE) led_set(BLUE);
+		}			
     }
 }
 
