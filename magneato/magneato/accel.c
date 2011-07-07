@@ -11,6 +11,7 @@
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
+#include "accel.h"
 
 /* ---FUNCTION DEFINITIONS--- */
 void accel_init(void)
@@ -70,9 +71,11 @@ float accel_calculate_heading(coordinate_3d accel)
 
 float accel_get_heading(void)		// TODO: this function can be reprogrammed to run faster
 {
+	coordinate_3d accel;
 	float heading;
 	
-	heading = accel_calculate_heading(accel_get());
+	accel = accel_get();
+	heading = accel_calculate_heading(accel);
 	
 	return(heading);
 }
