@@ -91,6 +91,46 @@ void motor_turn_arc(char direction, int left_motor_power, int right_motor_power)
 	}
 }
 
+void motor_turn_to_angle(float desired)
+{
+	float P, I, D, actual, error, integral, derivative, last_error, control;
+	
+	P = 30000;
+	I = 50;
+	D = 0;
+	
+	while (error > 0.05)	// while error is greater than around 3 degrees
+	{
+		actual = accel_get_heading();				// get heading
+		error = calculate_error(desired, actual);	// calculate error (negative results should turn right)
+		integral = integral + error;				// sum error over time
+		derivative = error - last_error;			// find the rate of change in error
+		last_error = error;							// update trailing error value
+		control = fmax(fmin(error * P + integral * I + derivative * D, MAX), -MAX);
+		if (control >= 0)	// go left
+		{
+			motor_set_power(LEFT, REVERSE, (unsigned int) control);
+			motor_set_power(RIGHT, FORWARD, (unsigned int) control);
+		}
+		else				// go right
+		{
+			motor_set_power(LEFT, FORWARD, (unsigned int) fabs(control));
+			motor_set_power(RIGHT, REVERSE, (unsigned int) fabs(control));
+		}
+	}
+	
+		
+		/*
+		
+		actual = heading(get_accel());		// get heading
+		error = desired - actual;			// calculate error (negative results mean you should turn right)
+		integral = integral + error;		// sum up error over time
+		derivative = error - last_error;	// find the rate of change in error
+		last_error = error;					// update the trailing error value
+		control = fmax(fmin(error * P + integral * I + derivative * D, MAX), -MAX);
+		*/
+}
+
 void motor_encoder_enable(void)
 {
 	PORTD.OUTSET = 0b10000000;		// turn on encoder emitter

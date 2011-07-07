@@ -30,7 +30,6 @@ void ir_set_threshold(char level);
 void ir_change_threshold(signed char amount);
 void update_motor_state(char state);
 void color_change(void);
-float percent_change(float number, float reference);
 
 /* ---GLOBAL VARIABLES--- */
 char global_state = STOP;
@@ -57,17 +56,17 @@ int main(void)
 	
 	while(1)
     {
-		if (global_left_encoder < 40)
+		if (global_left_encoder < 80)
 		{
-			motor_set_power(LEFT, FORWARD, MAX/2);
+			motor_set_power(LEFT, FORWARD, MAX);
 		}
-		else motor_set_power(LEFT, STOP, 0);
+		else motor_set_power(LEFT, STOP, 1000);
 		
-		if (global_right_encoder < 40)
+		if (global_right_encoder < 80)
 		{
-			motor_set_power(RIGHT, FORWARD, MAX/2);
+			motor_set_power(RIGHT, FORWARD, MAX);
 		}
-		else motor_set_power(RIGHT, STOP, 0);
+		else motor_set_power(RIGHT, STOP, 1000);
     }
 }
 
@@ -168,3 +167,4 @@ void update_motor_state(char state)
 			break;
 	}
 }
+

@@ -27,9 +27,9 @@ void accel_init(void)
 	// TODO: wait for ADC to start up
 }
 
-coordinate accel_get(void)
+coordinate_3d accel_get(void)
 {	
-	coordinate accel;
+	coordinate_3d accel;
 	
 	ADCA.CTRLA |= 0b00011100;				// start CH0-CH2 conversions
 	while(!(ADCA.INTFLAGS & 0b00000001));	// wait for CH0 interrupt flag
@@ -42,7 +42,7 @@ coordinate accel_get(void)
 	return(accel);
 }
 
-float accel_calculate_heading(coordinate accel)
+float accel_calculate_heading(coordinate_3d accel)
 {
 	float heading;
 	float Vzero = 1.6;		// should be 1.6 V
@@ -70,11 +70,9 @@ float accel_calculate_heading(coordinate accel)
 
 float accel_get_heading(void)		// TODO: this function can be reprogrammed to run faster
 {
-	coordinate accel;
 	float heading;
 	
-	accel = accel_get();
-	heading = accel_calculate_heading(accel);
+	heading = accel_calculate_heading(accel_get());
 	
 	return(heading);
 }

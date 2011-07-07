@@ -12,7 +12,11 @@
 /* ---CUSTOM STRUCTURES--- */
 typedef struct {
 	int x, y, z;
-} coordinate;
+} coordinate_3d;
+
+typedef struct {
+	int x, y;
+} coordinate_2d;
 
 /* ---DEFINE CONSTANTS--- */
 #define STOP 0		// motor directions
@@ -47,8 +51,11 @@ typedef struct {
 #define MID 101
 #define HIGH 102
 #define ALL	103
+#define FLASE 0
+#define TRUE 1
 
 /* ---FUNCTION PROTOTYPES--- */
 float percent_change(float number, float reference);
+float calculate_error(float desired, float actual);
 
 #endif /* GLOBAL_H */

@@ -72,17 +72,14 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 {
-	led_set(GREEN);
-	global_state = STRAIGHT;
-	//set_led(UNDER);
-	//set_motor_power(LEFT, FORWARD, MAX);
-	//set_motor_power(RIGHT, FORWARD, MAX);
-	motor_enable();
+	motor_disable();
 }
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
 	color_calibrate();
+	global_left_encoder = 0;
+	global_right_encoder = 0;
 	motor_enable();
 }
 

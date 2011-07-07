@@ -11,8 +11,8 @@
 
 /* ---FUNCTION PROTOTYPES--- */
 void accel_init(void);
-coordinate accel_get(void);
-float accel_calculate_heading(coordinate accel);
-float accel_get_heading(coordinate accel);
+coordinate_3d accel_get(void);
+float accel_calculate_heading(coordinate_3d accel);
+float accel_get_heading(coordinate_3d accel);
 
 #endif /* ACCEL_H */
