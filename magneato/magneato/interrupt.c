@@ -10,6 +10,7 @@
 /* ---AVR HEADER FILES--- */
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <math.h>
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
@@ -81,6 +82,7 @@ ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 	global_left_encoder = 0;
 	global_right_encoder = 0;
 	motor_enable();
+	motor_turn_to_angle(M_PI_4);
 }
 
 /*

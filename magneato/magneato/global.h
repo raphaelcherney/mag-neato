@@ -47,6 +47,7 @@ typedef struct {
 #define SLIGHT_RIGHT 40
 #define MID_RIGHT 50
 #define HARD_RIGHT 60
+#define FOLLOW_HEADING 70
 #define LOW 100
 #define MID 101
 #define HIGH 102

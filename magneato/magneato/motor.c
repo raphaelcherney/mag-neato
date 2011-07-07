@@ -7,13 +7,16 @@
 
 /* ---AVR HEADER FILES--- */
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
+#include "accel.h"
 
 /* ---GLOBAL VARIABLES--- */
 signed int global_left_encoder = 0;
 signed int global_right_encoder = 0;
+extern char global_state;
 
 /* ---FUNCTION DEFINITIONS--- */
 void motor_enable(void)
@@ -93,42 +96,60 @@ void motor_turn_arc(char direction, int left_motor_power, int right_motor_power)
 
 void motor_turn_to_angle(float desired)
 {
-	float P, I, D, actual, error, integral, derivative, last_error, control;
+	float actual, error, integral, control;
+	float P = 40000;
+	float I = 10;
 	
-	P = 30000;
-	I = 50;
-	D = 0;
-	
-	while (error > 0.05)	// while error is greater than around 3 degrees
+	error = 1;
+	motor_enable();
+	while (fabs(error) > 0.001)
 	{
 		actual = accel_get_heading();				// get heading
 		error = calculate_error(desired, actual);	// calculate error (negative results should turn right)
 		integral = integral + error;				// sum error over time
-		derivative = error - last_error;			// find the rate of change in error
-		last_error = error;							// update trailing error value
-		control = fmax(fmin(error * P + integral * I + derivative * D, MAX), -MAX);
+		control = fmax(fmin(error * P + integral * I, MAX), -MAX);
 		if (control >= 0)	// go left
 		{
-			motor_set_power(LEFT, REVERSE, (unsigned int) control);
-			motor_set_power(RIGHT, FORWARD, (unsigned int) control);
+			motor_set_power(LEFT, REVERSE, (int) control);
+			motor_set_power(RIGHT, FORWARD, (int) control);
 		}
 		else				// go right
 		{
-			motor_set_power(LEFT, FORWARD, (unsigned int) fabs(control));
-			motor_set_power(RIGHT, REVERSE, (unsigned int) fabs(control));
+			motor_set_power(LEFT, FORWARD, (int) fabs(control));
+			motor_set_power(RIGHT, REVERSE, (int) fabs(control));
 		}
 	}
+	motor_disable();
+}
+
+void motor_follow_heading(float desired_heading, char direction, unsigned int base_power)
+{
+	float actual, error, integral, control;
+	float P = 40000;
+	float I = 10;
+	long base, left_control, right_control;
 	
+	if (direction == FORWARD) base = (long) base_power;
+	else if (direction == REVERSE) base = -(long) base_power;
+	
+	motor_enable();
+	while (global_state == FOLLOW_HEADING)
+	{
+		actual = accel_get_heading();						// get heading
+		error = calculate_error(desired_heading, actual);	// calculate error (negative results should turn right)
+		integral = integral + error;						// sum error over time
+		control = error * P + integral * I;					// calculate adjustment to base power
 		
-		/*
+		left_control = base + (long) control;
+		right_control = base + (long) control;
 		
-		actual = heading(get_accel());		// get heading
-		error = desired - actual;			// calculate error (negative results mean you should turn right)
-		integral = integral + error;		// sum up error over time
-		derivative = error - last_error;	// find the rate of change in error
-		last_error = error;					// update the trailing error value
-		control = fmax(fmin(error * P + integral * I + derivative * D, MAX), -MAX);
-		*/
+		if (left_control >= 0) motor_set_power(LEFT, FORWARD, fmin((int) left_control, MAX));
+		else motor_set_power(LEFT, REVERSE, fmin(fabs(left_control) ,MAX));
+		
+		if (right_control >= 0) motor_set_power(RIGHT, FORWARD, fmin((int) right_control, MAX));
+		else motor_set_power(RIGHT, REVERSE, fmin(fabs(right_control) ,MAX));
+	}
+	motor_disable();
 }
 
 void motor_encoder_enable(void)

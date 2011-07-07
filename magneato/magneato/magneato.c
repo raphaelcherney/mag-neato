@@ -43,30 +43,17 @@ extern signed int global_right_encoder;
 /* ---MAIN FUNCTION--- */
 int main(void)
 {
-	unsigned char sensor, filter;
-	char colors[6];
+	unsigned char temp;
 	
 	init();
 	led_clear(ALL);
 	
-	//enable_motors();
-	//global_state = MID_LEFT;
-	//update_motor_state(global_state);
 	//usart_init();
 	
 	while(1)
     {
-		if (global_left_encoder < 80)
-		{
-			motor_set_power(LEFT, FORWARD, MAX);
-		}
-		else motor_set_power(LEFT, STOP, 1000);
-		
-		if (global_right_encoder < 80)
-		{
-			motor_set_power(RIGHT, FORWARD, MAX);
-		}
-		else motor_set_power(RIGHT, STOP, 1000);
+		temp++;
+		if (temp == 0) led_toggle(BLUE);
     }
 }
 
@@ -111,7 +98,6 @@ void init(void)
 	//motor_enable();
 	
 	/* ---ENCODERS--- */
-	
 	motor_encoder_enable();
 	motor_encoder_set_threshold(21);
 	

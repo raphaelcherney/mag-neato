@@ -13,6 +13,6 @@
 void accel_init(void);
 coordinate_3d accel_get(void);
 float accel_calculate_heading(coordinate_3d accel);
-float accel_get_heading(coordinate_3d accel);
+float accel_get_heading(void);
 
 #endif /* ACCEL_H */
