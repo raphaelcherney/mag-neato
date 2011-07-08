@@ -54,7 +54,7 @@ int main(void)
     {
 		if (global_state == FOLLOW_HEADING)
 		{
-			motor_follow_heading(-M_PI_4, FORWARD, MAX);
+			motor_follow_heading(-0.1, MAX);
 		}		
     }
 }
