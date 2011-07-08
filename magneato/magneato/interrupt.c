@@ -85,7 +85,7 @@ ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 	global_left_encoder = 0;
 	global_right_encoder = 0;
 	//motor_enable();
-	//motor_turn_to_angle(-M_PI_4);
+	motor_turn_to_angle(-0.1);
 	global_state = FOLLOW_HEADING;
 }
 
