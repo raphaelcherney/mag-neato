@@ -70,16 +70,16 @@ ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
 	motor_drive(STOP, 0, 0);	// stop
 	_delay_ms(2);				// avoid double counting
-	if (global_program == LINE_FOLLOW)
+	
+	switch (global_program)
 	{
-		motor_disable();
-		led_set(RED);
-	}
-	else if (global_program == BOUNCE)
-	{
-		global_state = REVERSE;
-		global_desired_angle -= M_PI_2;
-		if (global_desired_angle <= -M_PI) global_desired_angle += 2*M_PI;
+		case LINE_FOLLOW:
+			motor_disable();
+			led_set(RED);
+			break;
+		case BOUNCE:
+			global_state = REVERSE;
+			global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
 	}
 }
 
@@ -87,16 +87,16 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
 	motor_drive(STOP, 0, 0);
 	_delay_ms(2);
-	if (global_program == LINE_FOLLOW)
+	
+	switch (global_program)
 	{
-		motor_disable();
-		led_set(RED);
-	}
-	else if (global_program == BOUNCE)
-	{
-		global_state = REVERSE;
-		global_desired_angle += M_PI_2;
-		if (global_desired_angle > M_PI) global_desired_angle -= 2*M_PI;
+		case LINE_FOLLOW:
+			motor_disable();
+			led_set(RED);
+			break;
+		case BOUNCE:
+			global_state = REVERSE;
+			global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
 	}
 }
 
@@ -108,10 +108,10 @@ ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
-	led_set(UNDER);
+	//led_set(UNDER);
 	color_calibrate();
-	motor_enable();
-	motor_drive(REVERSE, MAX, MAX);
+	//motor_enable();
+	//motor_drive(REVERSE, MAX, MAX);
 	//global_program = LINE_FOLLOW;
 	//motor_turn_to_angle(-M_PI_4*3);
 }

@@ -24,7 +24,7 @@ typedef struct {
 #define REVERSE 2
 #define LEFT 0		// identifier
 #define RIGHT 1
-#define STRAIGHT 2
+#define STRAIGHT 22
 #define MAX 65535	// maximum motor speed
 #define CLEAR 0		// color identifiers
 #define RED 1		

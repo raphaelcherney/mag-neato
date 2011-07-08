@@ -29,9 +29,6 @@ void ir_disable(void);
 void ir_set_threshold(char level);
 void ir_change_threshold(signed char amount);
 void update_motor_state(char state);
-void color_change(void);
-void left_bumper(void);
-void right_bumper(void);
 
 /* ---GLOBAL VARIABLES--- */
 volatile char global_state = STOP;
@@ -52,8 +49,10 @@ int main(void)
 	
 	init();
 	led_clear(ALL);
-	led_set(UNDER);
+	//led_set(UNDER);
 	//usart_init();
+	
+	//motor_encoder_drive(FORWARD, 40);
 	
 	while(1)
     {
@@ -88,8 +87,7 @@ int main(void)
 		{
 			if (global_state == REVERSE)
 			{
-				//motor_encoder_drive(REVERSE, 20);
-				motor_drive(REVERSE, MAX, MAX);
+				motor_encoder_drive(REVERSE, 20);
 				global_state = TURN;
 			}
 			else if (global_state == TURN)
@@ -100,6 +98,11 @@ int main(void)
 			else if (global_state == FOLLOW_HEADING)
 			{
 				motor_follow_heading(global_desired_angle, MAX);
+			}
+			else if (global_state == STRAIGHT)
+			{
+				motor_encoder_drive(FORWARD, 40);
+				global_state = STOP;
 			}
 		}
 		temp++;
