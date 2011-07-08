@@ -22,8 +22,16 @@ float calculate_error(float desired, float actual)
 	float error;
 	
 	error = desired - actual;
-	if (error < -M_PI) error += 2*M_PI;
+	if (error <= -M_PI) error += 2*M_PI;
 	else if (error > M_PI) error -= 2*M_PI;
 	
 	return(error);
+}
+
+float valid_angle(float angle)
+{
+	if (angle <= -M_PI) angle += 2*M_PI;
+	else if (angle > M_PI) angle -= 2*M_PI;
+	
+	return(angle);
 }

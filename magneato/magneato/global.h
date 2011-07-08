@@ -54,9 +54,13 @@ typedef struct {
 #define ALL	103
 #define FLASE 0
 #define TRUE 1
+#define LINE_FOLLOW 29
+#define BOUNCE 30
+#define TURN 32
 
 /* ---FUNCTION PROTOTYPES--- */
 float percent_change(float number, float reference);
 float calculate_error(float desired, float actual);
+float valid_angle(float angle);
 
 #endif /* GLOBAL_H */

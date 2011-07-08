@@ -17,9 +17,10 @@
 #include "clock.h"
 
 /* ---GLOBAL VARIABLES--- */
-signed int global_left_encoder = 0;
-signed int global_right_encoder = 0;
+volatile signed int global_left_encoder = 0;
+volatile signed int global_right_encoder = 0;
 extern volatile char global_state;
+extern float global_desired_angle;
 
 /* ---FUNCTION DEFINITIONS--- */
 void motor_enable(void)
@@ -78,26 +79,22 @@ void motor_set_power(char motor, char direction, unsigned int power)
 	}
 }
 
-void motor_turn_arc(char direction, unsigned int left_motor_power, unsigned int right_motor_power)
+void motor_drive(char direction, unsigned int left_motor_power, unsigned int right_motor_power)
 {
+	TCD0.CCA = left_motor_power;
+	TCD1.CCB = right_motor_power;
 	switch (direction)
 	{
 		case FORWARD:
 			PORTD.OUTCLR = 0b00001100;
 			PORTD.OUTSET = 0b00010010;
-			TCD0.CCA = left_motor_power;
-			TCD1.CCB = right_motor_power;
 			break;
 		case REVERSE:
 			PORTD.OUTCLR = 0b00010010;
 			PORTD.OUTSET = 0b00001100;
-			TCD0.CCA = left_motor_power;
-			TCD1.CCB = right_motor_power;
 			break;
 		case STOP:
 			PORTD.OUTCLR = 0b00011110;
-			TCD0.CCA = left_motor_power;
-			TCD1.CCB = right_motor_power;
 			break;
 	}
 }
@@ -156,14 +153,6 @@ void motor_follow_heading(float desired_heading, unsigned int base_power)
 		
 		if (right_control >= 0) motor_set_power(RIGHT, FORWARD, fmin((unsigned int) right_control, MAX));
 		else motor_set_power(RIGHT, REVERSE, fmin((unsigned int) fabs(right_control), MAX));
-		
-		/*
-		if (fabs(error) < 0.05)
-		{
-			motor_turn_arc(FORWARD, MAX, MAX);
-			clock_delay(255);
-		}
-		*/
 	}
 	motor_disable();
 }
@@ -182,7 +171,6 @@ void motor_encoder_enable(void)
 
 void motor_encoder_disable(void)
 {
-	
 	PORTD.OUTCLR = 0b10000000;		// turn off encoder emitter
 	ACB.AC0CTRL &= ~(0b0000001);	// disable ACB0
 	ACB.AC1CTRL &= ~(0b0000001);	// disable ACB1
@@ -193,4 +181,14 @@ void motor_encoder_disable(void)
 void motor_encoder_set_threshold(char level)
 {
 	ACB.CTRLB = level;
+}
+
+void motor_encoder_drive(char direction, unsigned int counts)
+{
+	motor_drive(direction, MAX, MAX);
+	motor_enable();
+	global_left_encoder = 0;
+	global_right_encoder = 0;
+	while (global_left_encoder < counts) nop();
+	motor_disable();
 }

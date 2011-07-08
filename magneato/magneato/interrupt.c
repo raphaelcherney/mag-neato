@@ -11,19 +11,25 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <math.h>
+#define F_CPU 32000000UL  // 1 MHz
+#include <util/delay.h>
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
 #include "motor.h"
+#include "led.h"
+#include "color.h"
 
 /* ---GLOBAL VARIABLES--- */
 extern volatile char global_state;
+extern char global_program;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
 extern unsigned int global_color_value[6][4];
 extern unsigned int global_color_calibrate[6][4];
 extern char global_color_sensor_count;
 extern char global_color_filter;
+extern float global_desired_angle;
 
 /* ---INTERRUPT SERVICE ROUTINES--- */
 ISR(ACB_AC0_vect)		// LEFT WHEEL ENCODER
@@ -62,31 +68,52 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 
 ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
-	motor_disable();
-	led_set(RED);
-	global_state = STOP;
+	motor_drive(STOP, 0, 0);	// stop
+	_delay_ms(2);				// avoid double counting
+	if (global_program == LINE_FOLLOW)
+	{
+		motor_disable();
+		led_set(RED);
+	}
+	else if (global_program == BOUNCE)
+	{
+		global_state = REVERSE;
+		global_desired_angle -= M_PI_2;
+		if (global_desired_angle <= -M_PI) global_desired_angle += 2*M_PI;
+	}
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
-	motor_disable();
-	led_set(RED);
-	global_state = STOP;
+	motor_drive(STOP, 0, 0);
+	_delay_ms(2);
+	if (global_program == LINE_FOLLOW)
+	{
+		motor_disable();
+		led_set(RED);
+	}
+	else if (global_program == BOUNCE)
+	{
+		global_state = REVERSE;
+		global_desired_angle += M_PI_2;
+		if (global_desired_angle > M_PI) global_desired_angle -= 2*M_PI;
+	}
 }
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 {
-	motor_disable();
+	global_program = BOUNCE;
+	global_state = TURN;
 }
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
+	led_set(UNDER);
 	color_calibrate();
-	global_left_encoder = 0;
-	global_right_encoder = 0;
-	//motor_enable();
-	motor_turn_to_angle(-0.1);
-	global_state = FOLLOW_HEADING;
+	motor_enable();
+	motor_drive(REVERSE, MAX, MAX);
+	//global_program = LINE_FOLLOW;
+	//motor_turn_to_angle(-M_PI_4*3);
 }
 
 /*
