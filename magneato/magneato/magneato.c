@@ -32,7 +32,7 @@ void update_motor_state(char state);
 void color_change(void);
 
 /* ---GLOBAL VARIABLES--- */
-char global_state = STOP;
+volatile char global_state = STOP;
 extern unsigned int global_color_value[6][4];
 extern unsigned int global_color_calibrate[6][4];
 extern float global_color_change[6][4];
@@ -52,8 +52,10 @@ int main(void)
 	
 	while(1)
     {
-		temp++;
-		if (temp == 0) led_toggle(BLUE);
+		if (global_state == FOLLOW_HEADING)
+		{
+			motor_follow_heading(-M_PI_4, FORWARD, MAX);
+		}		
     }
 }
 
@@ -99,7 +101,7 @@ void init(void)
 	
 	/* ---ENCODERS--- */
 	motor_encoder_enable();
-	motor_encoder_set_threshold(21);
+	motor_encoder_set_threshold(6);
 	
 	/* ---ACCELEROMETER--- */
 	accel_init();

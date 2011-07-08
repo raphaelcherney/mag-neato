@@ -8,15 +8,17 @@
 /* ---AVR HEADER FILES--- */
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <math.h>
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
 #include "accel.h"
+#include "clock.h"
 
 /* ---GLOBAL VARIABLES--- */
 signed int global_left_encoder = 0;
 signed int global_right_encoder = 0;
-extern char global_state;
+extern volatile char global_state;
 
 /* ---FUNCTION DEFINITIONS--- */
 void motor_enable(void)
@@ -91,12 +93,18 @@ void motor_turn_arc(char direction, int left_motor_power, int right_motor_power)
 			TCD0.CCA = left_motor_power;
 			TCD1.CCB = right_motor_power;
 			break;
+		case STOP:
+			PORTD.OUTCLR = 0b00011110;
+			TCD0.CCA = left_motor_power;
+			TCD1.CCB = right_motor_power;
+			break;
 	}
 }
 
 void motor_turn_to_angle(float desired)
 {
-	float actual, error, integral, control;
+	float actual, error, control;
+	float integral = 0;
 	float P = 40000;
 	float I = 10;
 	
@@ -124,14 +132,16 @@ void motor_turn_to_angle(float desired)
 
 void motor_follow_heading(float desired_heading, char direction, unsigned int base_power)
 {
-	float actual, error, integral, control;
-	float P = 40000;
-	float I = 10;
+	float actual, error, control;
+	float integral = 0;
+	float P = 1000;
+	float I = 0;
 	long base, left_control, right_control;
 	
 	if (direction == FORWARD) base = (long) base_power;
 	else if (direction == REVERSE) base = -(long) base_power;
 	
+	motor_turn_arc(STOP, 0, 0);
 	motor_enable();
 	while (global_state == FOLLOW_HEADING)
 	{
@@ -140,14 +150,22 @@ void motor_follow_heading(float desired_heading, char direction, unsigned int ba
 		integral = integral + error;						// sum error over time
 		control = error * P + integral * I;					// calculate adjustment to base power
 		
-		left_control = base + (long) control;
-		right_control = base + (long) control;
+		left_control = base - (long) control;
+		right_control = base + (long) control;	
 		
 		if (left_control >= 0) motor_set_power(LEFT, FORWARD, fmin((int) left_control, MAX));
-		else motor_set_power(LEFT, REVERSE, fmin(fabs(left_control) ,MAX));
+		else motor_set_power(LEFT, REVERSE, fmin(fabs((int) left_control), MAX));
 		
 		if (right_control >= 0) motor_set_power(RIGHT, FORWARD, fmin((int) right_control, MAX));
-		else motor_set_power(RIGHT, REVERSE, fmin(fabs(right_control) ,MAX));
+		else motor_set_power(RIGHT, REVERSE, fmin(fabs((int) right_control), MAX));
+		
+		/*
+		if (fabs(error) < 0.05)
+		{
+			motor_turn_arc(FORWARD, MAX, MAX);
+			clock_delay(255);
+		}
+		*/
 	}
 	motor_disable();
 }
