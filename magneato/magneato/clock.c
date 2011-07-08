@@ -51,7 +51,7 @@ void clock_set_32mhz_crystal(void)
 	CLK.CTRL = 0x04;				// select PLL as clock
 }
 
-void clock_delay(char num)
+void clock_delay(volatile char num)
 {
 	for (num; num > 0; num--) nop();
 }

@@ -30,32 +30,79 @@ void ir_set_threshold(char level);
 void ir_change_threshold(signed char amount);
 void update_motor_state(char state);
 void color_change(void);
+void left_bumper(void);
+void right_bumper(void);
 
 /* ---GLOBAL VARIABLES--- */
 volatile char global_state = STOP;
+char global_program = STOP;
 extern unsigned int global_color_value[6][4];
 extern unsigned int global_color_calibrate[6][4];
 extern float global_color_change[6][4];
 extern char global_color_new;
-extern signed int global_left_encoder;
-extern signed int global_right_encoder;
+extern volatile signed int global_left_encoder;
+extern volatile signed int global_right_encoder;
+float global_desired_angle = M_PI_4;
 
 /* ---MAIN FUNCTION--- */
 int main(void)
 {
-	unsigned char temp;
+	volatile unsigned char temp;
+	float threshold = 0.2;
 	
 	init();
 	led_clear(ALL);
-	
+	led_set(UNDER);
 	//usart_init();
 	
 	while(1)
     {
-		if (global_state == FOLLOW_HEADING)
+		if (global_program == LINE_FOLLOW)
 		{
-			motor_follow_heading(-0.1, MAX);
-		}		
+			if (global_color_change[0][1]>threshold)
+			{
+				update_motor_state(HARD_LEFT);
+			}
+			else if (global_color_change[1][1]>threshold)
+			{
+				update_motor_state(MID_LEFT);
+			}
+			else if (global_color_change[2][1]>threshold)
+			{
+				update_motor_state(SLIGHT_LEFT);
+			}
+			else if (global_color_change[3][1]>threshold)
+			{
+				update_motor_state(SLIGHT_RIGHT);
+			}
+			else if (global_color_change[4][1]>threshold)
+			{
+				update_motor_state(MID_RIGHT);
+			}
+			else if (global_color_change[5][1]>threshold)
+			{
+				update_motor_state(HARD_RIGHT);
+			}
+		}
+		else if (global_program == BOUNCE)
+		{
+			if (global_state == REVERSE)
+			{
+				//motor_encoder_drive(REVERSE, 20);
+				motor_drive(REVERSE, MAX, MAX);
+				global_state = TURN;
+			}
+			else if (global_state == TURN)
+			{
+				motor_turn_to_angle(global_desired_angle);
+				global_state = FOLLOW_HEADING;
+			}
+			else if (global_state == FOLLOW_HEADING)
+			{
+				motor_follow_heading(global_desired_angle, MAX);
+			}
+		}
+		temp++;
     }
 }
 
@@ -155,4 +202,3 @@ void update_motor_state(char state)
 			break;
 	}
 }
-

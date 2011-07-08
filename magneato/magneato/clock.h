@@ -17,6 +17,6 @@ void clock_set_2mhz_internal(void);
 void clock_set_32mhz_internal(void);
 void clock_set_xosc(void);
 void clock_set_32mhz_crystal(void);
-void clock_delay(char num);
+void clock_delay(volatile char num);
 
 #endif /* CLOCK_H */

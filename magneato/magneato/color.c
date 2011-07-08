@@ -7,10 +7,12 @@
 
 /* ---AVR HEADER FILES--- */
 #include <avr/io.h>
+#include <stdlib.h>
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
 #include "color.h"
+#include "usart.h"
 
 /* ---GLOBAL VARIABLES--- */
 unsigned int global_color_value[6][4];
