@@ -94,6 +94,8 @@
     <GenerateMapFile>True</GenerateMapFile>
     <GenerateListFile>True</GenerateListFile>
     <GenerateEepFile>True</GenerateEepFile>
+    <OutputFile>magneato.elf</OutputFile>
+    <OutputType>Executable</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="accel.c">
