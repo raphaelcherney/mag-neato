@@ -14,9 +14,10 @@
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
+#include "motor.h"
 
 /* ---GLOBAL VARIABLES--- */
-extern char global_state;
+extern volatile char global_state;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
 extern unsigned int global_color_value[6][4];
@@ -63,12 +64,14 @@ ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
 	motor_disable();
 	led_set(RED);
+	global_state = STOP;
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
 	motor_disable();
 	led_set(RED);
+	global_state = STOP;
 }
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
@@ -81,8 +84,9 @@ ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 	color_calibrate();
 	global_left_encoder = 0;
 	global_right_encoder = 0;
-	motor_enable();
-	motor_turn_to_angle(M_PI_4);
+	//motor_enable();
+	//motor_turn_to_angle(-M_PI_4);
+	global_state = FOLLOW_HEADING;
 }
 
 /*
