@@ -11,8 +11,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <math.h>
-#define F_CPU 32000000UL  // 1 MHz
-#include <util/delay.h>
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
@@ -29,7 +27,7 @@ extern unsigned int global_color_value[6][4];
 extern unsigned int global_color_calibrate[6][4];
 extern char global_color_sensor_count;
 extern char global_color_filter;
-extern float global_desired_angle;
+extern volatile float global_desired_angle;
 
 /* ---INTERRUPT SERVICE ROUTINES--- */
 ISR(ACB_AC0_vect)		// LEFT WHEEL ENCODER
@@ -68,8 +66,7 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 
 ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
-	motor_drive(STOP, 0, 0);	// stop
-	_delay_ms(2);				// avoid double counting
+	//motor_drive(STOP, 0, 0);	// stop
 	
 	switch (global_program)
 	{
@@ -78,15 +75,13 @@ ISR(PORTA_INT0_vect)	// LEFT BUMPER
 			led_set(RED);
 			break;
 		case BOUNCE:
-			global_state = REVERSE;
-			global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
+			global_state = REVERSE_LEFT;
 	}
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
-	motor_drive(STOP, 0, 0);
-	_delay_ms(2);
+	//motor_drive(STOP, 0, 0);
 	
 	switch (global_program)
 	{
@@ -95,8 +90,7 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 			led_set(RED);
 			break;
 		case BOUNCE:
-			global_state = REVERSE;
-			global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
+			global_state = REVERSE_RIGHT;
 	}
 }
 
