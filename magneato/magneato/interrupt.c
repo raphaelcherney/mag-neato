@@ -72,7 +72,7 @@ ISR(PORTA_INT0_vect)	// LEFT BUMPER
 	{
 		case LINE_FOLLOW:
 			motor_disable();
-			led_set(RED);
+			led_clear(ALL);
 			break;
 		case BOUNCE:
 			global_state = REVERSE_LEFT;
@@ -87,7 +87,7 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 	{
 		case LINE_FOLLOW:
 			motor_disable();
-			led_set(RED);
+			led_clear(ALL);
 			break;
 		case BOUNCE:
 			global_state = REVERSE_RIGHT;
@@ -96,14 +96,36 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 {
-	global_program = BOUNCE;
-	global_state = TURN;
+	if (global_program == STOP)
+	{
+		global_program = BOUNCE;
+		global_state = TURN;
+	}
+	else
+	{
+		motor_disable();
+		led_clear(ALL);
+		global_state = STOP;
+		global_program = STOP;
+	}
 }
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
-	//led_set(UNDER);
-	color_calibrate();
+	if (global_program == STOP)
+	{
+		global_state = START;
+		global_program = LINE_FOLLOW;
+		led_set(UNDER);
+	}
+	else
+	{
+		motor_disable();
+		led_clear(ALL);
+		global_state = STOP;
+		global_program = STOP;
+	}
+	
 	//motor_enable();
 	//motor_drive(REVERSE, MAX, MAX);
 	//global_program = LINE_FOLLOW;
@@ -136,9 +158,10 @@ ISR(ACA_AC1_vect)		// RIGHT REFLECTIVE IR SENSOR
 }
 */
 
-ISR(TCE1_OVF_vect)		// TCE1 OVERFLOW
+ISR(TCE1_CCA_vect)		// TCE1 CCA INTERRUPT (COLOR)
 {
 	color_update();
+	TCE1.CCA = 0;		// reset counter
 }
 
 /* ---FUNCTION DEFINITIONS--- */

@@ -46,8 +46,8 @@ float volatile global_desired_angle = M_PI_4;
 /* ---MAIN FUNCTION--- */
 int main(void)
 {
-	volatile unsigned char temp;
-	float threshold = 0.2;
+	unsigned char i;
+	float threshold = 0.25;
 	
 	init();
 	led_clear(ALL);
@@ -60,29 +60,41 @@ int main(void)
     {
 		if (global_program == LINE_FOLLOW)
 		{
-			if (global_color_change[0][1]>threshold)
+			if (global_state == START)
 			{
-				update_motor_state(HARD_LEFT);
+				_delay_ms(500);
+				color_calibrate();
+				_delay_ms(50);
+				motor_enable();
+				motor_drive(FORWARD, MAX, MAX);
+				global_state = STRAIGHT;
 			}
-			else if (global_color_change[1][1]>threshold)
+			for (i=0; i<4; i++)
 			{
-				update_motor_state(MID_LEFT);
-			}
-			else if (global_color_change[2][1]>threshold)
-			{
-				update_motor_state(SLIGHT_LEFT);
-			}
-			else if (global_color_change[3][1]>threshold)
-			{
-				update_motor_state(SLIGHT_RIGHT);
-			}
-			else if (global_color_change[4][1]>threshold)
-			{
-				update_motor_state(MID_RIGHT);
-			}
-			else if (global_color_change[5][1]>threshold)
-			{
-				update_motor_state(HARD_RIGHT);
+				if (global_color_change[0][i]>threshold)
+				{
+					update_motor_state(HARD_LEFT);
+				}
+				else if (global_color_change[1][i]>threshold)
+				{
+					update_motor_state(MID_LEFT);
+				}
+				else if (global_color_change[2][i]>threshold)
+				{
+					update_motor_state(SLIGHT_LEFT);
+				}
+				else if (global_color_change[3][i]>threshold)
+				{
+					update_motor_state(SLIGHT_RIGHT);
+				}
+				else if (global_color_change[4][i]>threshold)
+				{
+					update_motor_state(MID_RIGHT);
+				}
+				else if (global_color_change[5][i]>threshold)
+				{
+					update_motor_state(HARD_RIGHT);
+				}
 			}
 		}
 		else if (global_program == BOUNCE)
@@ -119,7 +131,7 @@ int main(void)
 				global_state = STOP;
 			}
 		}
-		temp++;
+		i++;
     }
 }
 
