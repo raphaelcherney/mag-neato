@@ -10,6 +10,8 @@
 #include <avr/interrupt.h>		// interrupt definitions and macros
 #include <stdlib.h>				// general utilities
 #include <math.h>				// math functions
+#define F_CPU 32000000UL		// 32 MHz
+#include <util/delay.h>			// delay functions
 
 /*---LOCAL HEADER FILES--- */
 #include "global.h"
@@ -39,7 +41,7 @@ extern float global_color_change[6][4];
 extern char global_color_new;
 extern volatile signed int global_left_encoder;
 extern volatile signed int global_right_encoder;
-float global_desired_angle = M_PI_4;
+float volatile global_desired_angle = M_PI_4;
 
 /* ---MAIN FUNCTION--- */
 int main(void)
@@ -85,9 +87,21 @@ int main(void)
 		}
 		else if (global_program == BOUNCE)
 		{
-			if (global_state == REVERSE)
+			if (global_state == REVERSE_LEFT || global_state == REVERSE_RIGHT)
 			{
-				motor_encoder_drive(REVERSE, 20);
+				//motor_encoder_drive(REVERSE, 20);
+				motor_drive(REVERSE, MAX, MAX);
+				motor_enable();
+				_delay_ms(400);
+				switch (global_state)
+				{
+					case REVERSE_LEFT:
+						global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
+						break;
+					case REVERSE_RIGHT:
+						global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
+						break;
+				}
 				global_state = TURN;
 			}
 			else if (global_state == TURN)

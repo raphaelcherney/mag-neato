@@ -103,12 +103,12 @@ void motor_turn_to_angle(float desired)
 {
 	float actual, error, control;
 	float integral = 0;
-	float P = 50000;
-	float I = 10;
+	float P = 60000;
+	float I = 20;
 	
 	error = 1;
 	motor_enable();
-	while (fabs(error) > 0.001)
+	while (fabs(error) > 0.01)
 	{
 		actual = accel_get_heading();				// get heading
 		error = calculate_error(desired, actual);	// calculate error (negative results should turn right)

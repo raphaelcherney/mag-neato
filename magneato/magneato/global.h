@@ -57,6 +57,8 @@ typedef struct {
 #define LINE_FOLLOW 29
 #define BOUNCE 30
 #define TURN 32
+#define REVERSE_LEFT 33
+#define REVERSE_RIGHT 34
 
 /* ---FUNCTION PROTOTYPES--- */
 float percent_change(float number, float reference);
