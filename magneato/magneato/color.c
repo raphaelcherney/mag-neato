@@ -69,7 +69,9 @@ void color_init(void)
 	color_set_frequency(ONE_HUNDRED_PERCENT);
 	
 	TCE1.CTRLA = 0b00000001;		// enable TCE1 with prescaler: clk/1 (will overflow every 2ms)
-	TCE1.INTCTRLA = 0b00000001;		// configure timer overflow as LOW level interrupt
+	//TCE1.INTCTRLA = 0b00000001;		// configure timer overflow as LOW level interrupt
+	TCE1.CCA = 32767;				// trigger CCA every 1 ms
+	TCE1.INTCTRLB = 0b00000001;		// configure CCA as LOW level interrupt
 	
 	TCE0.CTRLD = 0b10101000;		// frequency capture using event CH0
 	TCE0.CTRLB |= 0b00010000;		// enable CCA
