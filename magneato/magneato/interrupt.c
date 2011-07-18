@@ -73,6 +73,8 @@ ISR(PORTA_INT0_vect)	// LEFT BUMPER
 		case LINE_FOLLOW:
 			motor_disable();
 			led_clear(ALL);
+			global_state = STOP;
+			global_program = STOP;
 			break;
 		case BOUNCE:
 			global_state = REVERSE_LEFT;
@@ -88,6 +90,8 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 		case LINE_FOLLOW:
 			motor_disable();
 			led_clear(ALL);
+			global_state = STOP;
+			global_program = STOP;
 			break;
 		case BOUNCE:
 			global_state = REVERSE_RIGHT;
