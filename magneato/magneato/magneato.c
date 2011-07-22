@@ -34,14 +34,13 @@ void update_motor_state(char state);
 
 /* ---GLOBAL VARIABLES--- */
 volatile char global_state = STOP;
-char global_program = STOP;
+volatile char global_program = STOP;
 extern unsigned int global_color_value[6][4];
 extern unsigned int global_color_calibrate[6][4];
 extern float global_color_change[6][4];
-extern char global_color_new;
 extern volatile signed int global_left_encoder;
 extern volatile signed int global_right_encoder;
-float volatile global_desired_angle = M_PI_4;
+volatile float global_desired_angle = -M_PI_4;
 
 /* ---MAIN FUNCTION--- */
 int main(void)
@@ -99,24 +98,23 @@ int main(void)
 		}
 		else if (global_program == BOUNCE)
 		{
-			if (global_state == REVERSE_LEFT || global_state == REVERSE_RIGHT)
+			if (bit_check(PORTA.IN, BIT(1)))
 			{
-				//motor_encoder_drive(REVERSE, 20);
 				motor_drive(REVERSE, MAX, MAX);
 				motor_enable();
 				_delay_ms(400);
-				switch (global_state)
-				{
-					case REVERSE_LEFT:
-						global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
-						break;
-					case REVERSE_RIGHT:
-						global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
-						break;
-				}
+				global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
 				global_state = TURN;
 			}
-			else if (global_state == TURN)
+			if (bit_check(PORTF.IN, BIT(7)))
+			{
+				motor_drive(REVERSE, MAX, MAX);
+				motor_enable();
+				_delay_ms(400);
+				global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
+				global_state = TURN;
+			}
+			if (global_state == TURN)
 			{
 				motor_turn_to_angle(global_desired_angle);
 				global_state = FOLLOW_HEADING;

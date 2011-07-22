@@ -20,7 +20,7 @@
 
 /* ---GLOBAL VARIABLES--- */
 extern volatile char global_state;
-extern char global_program;
+extern volatile char global_program;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
 extern unsigned int global_color_value[6][4];
@@ -66,74 +66,27 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 
 ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
-	//motor_drive(STOP, 0, 0);	// stop
-	
-	switch (global_program)
-	{
-		case LINE_FOLLOW:
-			motor_disable();
-			led_clear(ALL);
-			global_state = STOP;
-			global_program = STOP;
-			break;
-		case BOUNCE:
-			global_state = REVERSE_LEFT;
-	}
+	motor_drive(STOP, 0, 0);	// stop
+	global_state = STOP;
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
-	//motor_drive(STOP, 0, 0);
-	
-	switch (global_program)
-	{
-		case LINE_FOLLOW:
-			motor_disable();
-			led_clear(ALL);
-			global_state = STOP;
-			global_program = STOP;
-			break;
-		case BOUNCE:
-			global_state = REVERSE_RIGHT;
-	}
+	motor_drive(STOP, 0, 0);	// stop
+	global_state = STOP;
 }
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 {
-	if (global_program == STOP)
-	{
-		global_program = BOUNCE;
-		global_state = TURN;
-	}
-	else
-	{
-		motor_disable();
-		led_clear(ALL);
-		global_state = STOP;
-		global_program = STOP;
-	}
+	global_program = BOUNCE;
+	global_state = TURN;
 }
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 {
-	if (global_program == STOP)
-	{
-		global_state = START;
-		global_program = LINE_FOLLOW;
-		led_set(UNDER);
-	}
-	else
-	{
-		motor_disable();
-		led_clear(ALL);
-		global_state = STOP;
-		global_program = STOP;
-	}
-	
-	//motor_enable();
-	//motor_drive(REVERSE, MAX, MAX);
-	//global_program = LINE_FOLLOW;
-	//motor_turn_to_angle(-M_PI_4*3);
+	global_program = LINE_FOLLOW;
+	global_state = START;
+	led_set(UNDER);
 }
 
 /*

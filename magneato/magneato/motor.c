@@ -103,15 +103,15 @@ void motor_turn_to_angle(float desired)
 {
 	float actual, error, control;
 	float integral = 0;
-	float P = 60000;
+	float P = 10000;
 	float I = 20;
 	
-	error = 1;
 	motor_enable();
-	while (fabs(error) > 0.01)
+	do
 	{
 		actual = accel_get_heading();				// get heading
-		error = calculate_error(desired, actual);	// calculate error (negative results should turn right)
+		//error = calculate_error(desired, actual);	// calculate error (negative results should turn right)
+		error = valid_angle(desired - actual);
 		integral = integral + error;				// sum error over time
 		control = fmax(fmin(error * P + integral * I, MAX), -MAX);
 		if (control >= 0)	// go left
@@ -124,7 +124,7 @@ void motor_turn_to_angle(float desired)
 			motor_set_power(LEFT, FORWARD, (int) fabs(control));
 			motor_set_power(RIGHT, REVERSE, (int) fabs(control));
 		}
-	}
+	} while (fabs(error) > 0.5);
 	motor_disable();
 }
 
@@ -132,8 +132,8 @@ void motor_follow_heading(float desired_heading, unsigned int base_power)
 {
 	float actual, error, control;
 	float integral = 0;
-	float P = 40000;
-	float I = 100;
+	float P = 10000;
+	float I = 20;
 	long left_control, right_control;
 	
 	//motor_turn_arc(STOP, 0, 0);
