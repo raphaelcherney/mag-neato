@@ -18,6 +18,13 @@ typedef struct {
 	int x, y;
 } coordinate_2d;
 
+/* ---DEFINE MACROS--- */
+#define bit_check(address, mask) ((address) & (mask)) 
+#define bit_set(address, mask) ((address) |= (mask)) 
+#define bit_clear(address, mask) ((address) &= ~(mask)) 
+#define bit_flip(address, mask) ((address) ^= (mask)) 
+#define BIT(x) (0x01 << (x)) 
+
 /* ---DEFINE CONSTANTS--- */
 #define STOP 0		// motor directions
 #define FORWARD 1

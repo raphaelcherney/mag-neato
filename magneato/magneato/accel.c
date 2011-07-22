@@ -78,4 +78,5 @@ float accel_get_heading(void)		// TODO: this function can be reprogrammed to run
 	heading = accel_calculate_heading(accel);
 	
 	return(heading);
+	// return(accel_calculate_heading(accel_get());
 }
