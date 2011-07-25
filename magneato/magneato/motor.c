@@ -45,11 +45,11 @@ void motor_set_power(char motor, char direction, unsigned int power)
 		case LEFT:
 			switch (direction)
 			{
-				case FORWARD:
+				case REVERSE:
 					PORTD.OUTCLR = 0b00000100;
 					PORTD.OUTSET = 0b00000010;
 					break;
-				case REVERSE:
+				case FORWARD:
 					PORTD.OUTCLR = 0b00000010;
 					PORTD.OUTSET = 0b00000100;
 					break;
@@ -62,11 +62,11 @@ void motor_set_power(char motor, char direction, unsigned int power)
 		case RIGHT:
 			switch (direction)
 			{
-				case FORWARD:
+				case REVERSE:
 					PORTD.OUTCLR = 0b00001000;
 					PORTD.OUTSET = 0b00010000;
 					break;
-				case REVERSE:
+				case FORWARD:
 					PORTD.OUTCLR = 0b00010000;
 					PORTD.OUTSET = 0b00001000;
 					break;
@@ -85,11 +85,11 @@ void motor_drive(char direction, unsigned int left_motor_power, unsigned int rig
 	TCD1.CCB = right_motor_power;
 	switch (direction)
 	{
-		case FORWARD:
+		case REVERSE:
 			PORTD.OUTCLR = 0b00001100;
 			PORTD.OUTSET = 0b00010010;
 			break;
-		case REVERSE:
+		case FORWARD:
 			PORTD.OUTCLR = 0b00010010;
 			PORTD.OUTSET = 0b00001100;
 			break;
