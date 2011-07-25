@@ -40,7 +40,7 @@ extern unsigned int global_color_calibrate[6][4];
 extern float global_color_change[6][4];
 extern volatile signed int global_left_encoder;
 extern volatile signed int global_right_encoder;
-volatile float global_desired_angle = -M_PI_4;
+volatile float global_desired_angle = M_PI_4;
 
 /* ---MAIN FUNCTION--- */
 int main(void)
@@ -50,6 +50,7 @@ int main(void)
 	coordinate_3d accelerations;
 	
 	init();
+	motor_turn_to_angle(M_PI_4);
 	
 	while(1)
     {
