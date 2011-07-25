@@ -34,11 +34,11 @@ coordinate_3d accel_get(void)
 	
 	ADCA.CTRLA |= 0b00011100;				// start CH0-CH2 conversions
 	while(!(ADCA.INTFLAGS & 0b00000001));	// wait for CH0 interrupt flag
-	accel.x = ADCA.CH0.RES;					// read ADC result
+	accel.x = (int) ADCA.CH0.RES;			// read ADC CH0 result
 	while(!(ADCA.INTFLAGS & 0b00000010));	// wait for CH1 interrupt flag
-	accel.y = ADCA.CH1.RES;
+	accel.y = (int) ADCA.CH1.RES;			// read ADC CH1 result
 	while(!(ADCA.INTFLAGS & 0b00000100));	// wait for CH2 interrupt flag
-	accel.z = ADCA.CH2.RES;
+	accel.z = (int) ADCA.CH2.RES;			// read ADC CH2 result
 
 	return(accel);
 }
@@ -51,25 +51,27 @@ float accel_calculate_heading(coordinate_3d accel)
 	float Vref = Vdd / 1.6;
 	float deltaV = Vref * 0.05;;
 	float Vx, Vy, Vz;
-	float x, y;
+	float x, y; 
 	
 	Vx = ((float)accel.x * Vref) / 4096 - deltaV;
 	Vy = ((float)accel.y * Vref) / 4096 - deltaV;
 	Vz = ((float)accel.z * Vref) / 4096 - deltaV;
 	
-	Vx = Vx - Vzero;
-	Vy = Vy - Vzero;
-	Vz = Vz - Vzero;
+	Vzero = Vz;				// using the z-axis reading as a zero since it shouldn't really change (and there have been zero issues)
 	
-	x = -Vy;	// change sign due to board layout
+	Vx -= Vzero;
+	Vy -= Vzero;
+	Vz -= Vzero;
+	
+	x = -Vy;				// change sign due to board layout
 	y = -Vx;
 	
-	heading = atan2(y, x);
+	heading = atan2(y, x);	// heading will be between -pi and pi with 0 facing the right side of the board
 	
 	return(heading);
 }
 
-float accel_get_heading(void)		// TODO: this function can be reprogrammed to run faster
+float accel_get_heading(void)
 {
 	coordinate_3d accel;
 	float heading;
