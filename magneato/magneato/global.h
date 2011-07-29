@@ -67,7 +67,8 @@ typedef struct {
 #define REVERSE_LEFT 33
 #define REVERSE_RIGHT 34
 #define START 35
-#define NEWLINE 12
+//#define NEWLINE 12
+#define NEWLINE '\n'
 #define TAB 9
 
 /* ---FUNCTION PROTOTYPES--- */
