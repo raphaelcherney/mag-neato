@@ -48,34 +48,86 @@ int main(void)
 	volatile unsigned char i;
 	float heading;
 	coordinate_3d accelerations;
+	float threshold = 0.15;
 	
 	init();
-	motor_turn_to_angle(M_PI_4);
+	led_clear(ALL);
+	//led_set(UNDER);
 	
 	while(1)
     {
-		accelerations = accel_get();
-		usart_transmit_string("x=");
-		usart_transmit_int(accelerations.x);
-		usart_transmit_char(TAB);
-		usart_transmit_string("y=");
-		usart_transmit_int(accelerations.y);
-		usart_transmit_char(TAB);
-		usart_transmit_string("z=");
-		usart_transmit_int(accelerations.z);
-		heading = accel_calculate_heading(accelerations);
-		usart_transmit_char(TAB);
-		usart_transmit_string("heading=");
-		usart_transmit_float(heading);
-		usart_transmit_char(NEWLINE);
-		if (heading > 0)
+		if (global_program == LINE_FOLLOW)
 		{
-			led_set(GREEN);
+			if (global_state == START)
+			{
+				_delay_ms(500);
+				color_calibrate();
+				_delay_ms(50);
+				motor_enable();
+				motor_drive(FORWARD, MAX, MAX);
+				global_state = STRAIGHT;
+			}
+			for (i=0; i<4; i++)
+			{
+				if (global_color_change[0][i]>threshold)
+				{
+					update_motor_state(HARD_LEFT);
+				}
+				else if (global_color_change[1][i]>threshold)
+				{
+					update_motor_state(MID_LEFT);
+				}
+				else if (global_color_change[2][i]>threshold)
+				{
+					update_motor_state(SLIGHT_LEFT);
+				}
+				else if (global_color_change[3][i]>threshold)
+				{
+					update_motor_state(SLIGHT_RIGHT);
+				}
+				else if (global_color_change[4][i]>threshold)
+				{
+					update_motor_state(MID_RIGHT);
+				}
+				else if (global_color_change[5][i]>threshold)
+				{
+					update_motor_state(HARD_RIGHT);
+				}
+			}
 		}
-		else
-		{
-			led_clear(GREEN);
-		}			
+		else if (global_program == BOUNCE)
+            {
+                if (bit_check(PORTA.IN, BIT(1)))
+                {
+                    motor_drive(REVERSE, MAX, MAX);
+                    motor_enable();
+                    _delay_ms(400);
+                    global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
+                    global_state = TURN;
+                }
+                if (bit_check(PORTF.IN, BIT(7)))
+                {
+                    motor_drive(REVERSE, MAX, MAX);
+                    motor_enable();
+                    _delay_ms(400);
+                    global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
+                    global_state = TURN;
+                }
+                if (global_state == TURN)
+                {
+                    motor_turn_to_angle(global_desired_angle);
+                    global_state = FOLLOW_HEADING;
+                }
+                else if (global_state == FOLLOW_HEADING)
+                {
+                    motor_follow_heading(global_desired_angle, MAX);
+                }
+                else if (global_state == STRAIGHT)
+                {
+                    motor_encoder_drive(FORWARD, 40);
+                    global_state = STOP;
+                }
+            }
     }
 }
 
