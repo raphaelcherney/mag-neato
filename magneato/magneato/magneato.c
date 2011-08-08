@@ -35,12 +35,14 @@ void update_motor_state(char state);
 /* ---GLOBAL VARIABLES--- */
 volatile char global_state = STOP;
 volatile char global_program = STOP;
-extern unsigned int global_color_value[6][4];
-extern unsigned int global_color_calibrate[6][4];
-extern float global_color_change[6][4];
+extern volatile unsigned int global_color_value[6][4];
+extern volatile unsigned int global_color_calibrate[6][4];
+extern volatile float global_color_change[6][4];
 extern volatile signed int global_left_encoder;
 extern volatile signed int global_right_encoder;
-volatile float global_desired_angle = M_PI_4;
+volatile float global_desired_angle;
+extern volatile float global_color_threshold[4];
+
 
 /* ---MAIN FUNCTION--- */
 int main(void)
@@ -50,53 +52,48 @@ int main(void)
 	coordinate_3d accelerations;
 	float threshold = 0.15;
 	
+	global_color_threshold[0] = threshold;
+	global_color_threshold[1] = threshold;
+	global_color_threshold[2] = threshold;
+	global_color_threshold[3] = threshold;
+	
 	init();
 	led_clear(ALL);
-	led_set(UNDER);
-	_delay_ms(500);
-	color_calibrate();
-	_delay_ms(50);
+	//led_set(UNDER);
+	//_delay_ms(500);
+	//color_calibrate();
+	//_delay_ms(50);
+	global_program = 0;
 	
 	while(1)
     {
-		if (global_program == LINE_FOLLOW)
-		{
+		{			
+			color_compare();
 			if (global_state == START)
-			{
+			{	
 				_delay_ms(500);
 				color_calibrate();
+				global_desired_angle = accel_get_heading();
 				_delay_ms(50);
 				motor_enable();
-				motor_drive(FORWARD, MAX, MAX);
-				global_state = STRAIGHT;
+				global_state = FOLLOW_HEADING;
+				motor_follow_heading(global_desired_angle, MAX);
 			}
-			for (i=0; i<4; i++)
+			if (global_state == MID_LEFT || global_state == SLIGHT_LEFT || global_state == SLIGHT_RIGHT || global_state == MID_RIGHT)
 			{
-				if (global_color_change[0][i]>threshold)
-				{
-					update_motor_state(HARD_LEFT);
-				}
-				else if (global_color_change[1][i]>threshold)
-				{
-					update_motor_state(MID_LEFT);
-				}
-				else if (global_color_change[2][i]>threshold)
-				{
-					update_motor_state(SLIGHT_LEFT);
-				}
-				else if (global_color_change[3][i]>threshold)
-				{
-					update_motor_state(SLIGHT_RIGHT);
-				}
-				else if (global_color_change[4][i]>threshold)
-				{
-					update_motor_state(MID_RIGHT);
-				}
-				else if (global_color_change[5][i]>threshold)
-				{
-					update_motor_state(HARD_RIGHT);
-				}
+				motor_follow_heading(global_desired_angle, MAX);
 			}
+			else if (global_state == HARD_LEFT)
+			{
+				motor_set_power(LEFT, STOP, 0);
+				motor_set_power(RIGHT, FORWARD, MAX);
+			}
+			else if (global_state == HARD_RIGHT)
+			{
+				motor_set_power(LEFT, FORWARD, MAX);
+				motor_set_power(RIGHT, STOP, 0);
+			}
+			
 		}
 		else if (global_program == BOUNCE)
                 {
@@ -177,7 +174,7 @@ void init(void)
 	
 	/* ---ENCODERS--- */
 	motor_encoder_enable();
-	motor_encoder_set_threshold(6);
+	motor_encoder_set_threshold(30);
 	
 	/* ---ACCELEROMETER--- */
 	accel_init();
