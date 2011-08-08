@@ -21,6 +21,8 @@ volatile signed int global_left_encoder = 0;
 volatile signed int global_right_encoder = 0;
 extern volatile char global_state;
 extern float global_desired_angle;
+extern unsigned int global_color_value[6][4];
+extern float global_color_change[6][4];
 
 /* ---FUNCTION DEFINITIONS--- */
 void motor_enable(void)

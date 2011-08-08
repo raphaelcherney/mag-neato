@@ -11,6 +11,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <math.h>
+#define F_CPU 32000000UL		// 32 MHz
+#include <util/delay.h>			// delay functions
 
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
@@ -66,20 +68,39 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 
 ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
-	motor_drive(STOP, 0, 0);	// stop
-	global_state = STOP;
+	switch (global_program)
+        {
+                case LINE_FOLLOW:
+                        motor_disable();
+                        led_set(RED);
+                        break;
+                case BOUNCE:
+                        global_state = REVERSE_LEFT;
+        }
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
-	motor_drive(STOP, 0, 0);	// stop
-	global_state = STOP;
+	switch (global_program)
+        {
+                case LINE_FOLLOW:
+                        motor_disable();
+                        led_set(RED);
+                        break;
+                case BOUNCE:
+                        global_state = REVERSE_RIGHT;
+        }
 }
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 {
 	global_program = BOUNCE;
 	global_state = TURN;
+	led_clear(ALL);
+	led_set(UNDER);
+	_delay_ms(500);
+	color_calibrate();
+	_delay_ms(50);
 }
 
 ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
