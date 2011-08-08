@@ -52,7 +52,10 @@ int main(void)
 	
 	init();
 	led_clear(ALL);
-	//led_set(UNDER);
+	led_set(UNDER);
+	_delay_ms(500);
+	color_calibrate();
+	_delay_ms(50);
 	
 	while(1)
     {
@@ -96,38 +99,39 @@ int main(void)
 			}
 		}
 		else if (global_program == BOUNCE)
-            {
-                if (bit_check(PORTA.IN, BIT(1)))
                 {
-                    motor_drive(REVERSE, MAX, MAX);
-                    motor_enable();
-                    _delay_ms(400);
-                    global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
-                    global_state = TURN;
+                        if (global_state == REVERSE_LEFT || global_state == REVERSE_RIGHT)
+                        {
+                                //motor_encoder_drive(REVERSE, 20);
+                                motor_drive(REVERSE, MAX, MAX);
+                                motor_enable();
+                                _delay_ms(400);
+                                switch (global_state)
+                                {
+                                        case REVERSE_LEFT:
+                                                global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
+                                                break;
+                                        case REVERSE_RIGHT:
+                                                global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
+                                                break;
+                                }
+                                global_state = TURN;
+                        }
+                        else if (global_state == TURN)
+                        {
+                                motor_turn_to_angle(global_desired_angle);
+                                global_state = FOLLOW_HEADING;
+                        }
+                        else if (global_state == FOLLOW_HEADING)
+                        {
+                                motor_follow_heading(global_desired_angle, MAX);
+                        }
+                        else if (global_state == STRAIGHT)
+                        {
+                                motor_encoder_drive(FORWARD, 40);
+                                global_state = STOP;
+                        }
                 }
-                if (bit_check(PORTF.IN, BIT(7)))
-                {
-                    motor_drive(REVERSE, MAX, MAX);
-                    motor_enable();
-                    _delay_ms(400);
-                    global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
-                    global_state = TURN;
-                }
-                if (global_state == TURN)
-                {
-                    motor_turn_to_angle(global_desired_angle);
-                    global_state = FOLLOW_HEADING;
-                }
-                else if (global_state == FOLLOW_HEADING)
-                {
-                    motor_follow_heading(global_desired_angle, MAX);
-                }
-                else if (global_state == STRAIGHT)
-                {
-                    motor_encoder_drive(FORWARD, 40);
-                    global_state = STOP;
-                }
-            }
     }
 }
 
@@ -140,7 +144,7 @@ void init(void)
 	clock_set_32mhz_crystal();
 	
 	/* ---GPIO INIT--- */
-	PORTA.DIR = 0b00000001;		// PA0 as input, rest as outputs
+	PORTA.DIR = 0b00000001;		// PA0 as output, rest as inputs
 	PORTB.DIR = 0b00000000;		// all PORTB as inputs
 	PORTC.DIR = 0b00000000;		// all PORTC as inputs
 	PORTD.DIR = 0b11111111;		// all PORTD as outputs

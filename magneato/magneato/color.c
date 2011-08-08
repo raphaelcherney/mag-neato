@@ -13,6 +13,7 @@
 #include "global.h"
 #include "color.h"
 #include "usart.h"
+#include "led.h"
 
 /* ---GLOBAL VARIABLES--- */
 unsigned int global_color_value[6][4];
@@ -20,6 +21,7 @@ unsigned int global_color_calibrate[6][4];
 float global_color_change[6][4];
 char global_color_sensor_count;
 char global_color_filter;
+extern volatile char global_state;
 
 /* ---FUNCTION DEFINITIONS--- */
 void color_set_filter(char color)
@@ -134,6 +136,7 @@ void color_update(void)
 					color_set_filter(CLEAR);
 					global_color_filter = 0;
 					color_change();
+					color_check_for_red();
 					//color_transmit_value();
 					break;
 			}
@@ -165,6 +168,61 @@ void color_change(void)
 			global_color_change[i][j] = percent_change((float)global_color_value[i][j], (float)global_color_calibrate[i][j]);
 		}
 	}
+}
+
+void color_check_for_red(void)
+{
+	int i, j;
+	float threshold = 0.15;
+	
+	/*
+	for (i=0; i<4; i++)
+	{
+		if (global_color_change[0][i]>threshold)
+		{
+			led_set(BLUE);
+		}
+		else if (global_color_change[1][i]>threshold)
+		{
+			led_set(BLUE);
+		}
+		else if (global_color_change[2][i]>threshold)
+		{
+			led_set(BLUE);
+		}
+		else if (global_color_change[3][i]>threshold)
+		{
+			led_set(GREEN);
+		}
+		else if (global_color_change[4][i]>threshold)
+		{
+			led_set(GREEN);
+		}
+		else if (global_color_change[5][i]>threshold)
+		{
+			led_set(GREEN);
+		}
+	}	
+	*/
+	led_set(BLUE);
+	for (i=0; i<2; i++)
+	{
+		if ((global_color_value[i][1]<global_color_value[i][2]) && (global_color_value[i][1]<global_color_value[i][3]))
+		{
+			global_state = REVERSE_LEFT;
+			led_set(RED);
+			break;
+		}
+	}
+	for (j=3; j<5; j++)
+	{
+		if ((global_color_value[j][1]<global_color_value[j][2])  && (global_color_value[j][1]<global_color_value[j][3]))
+		{
+			global_state = REVERSE_RIGHT;
+			led_set(RED);
+			break;
+		}
+	}		
 }
 
 void color_transmit_value(void)
