@@ -25,10 +25,10 @@ extern volatile char global_state;
 extern volatile char global_program;
 extern signed int global_left_encoder;
 extern signed int global_right_encoder;
-extern unsigned int global_color_value[6][4];
-extern unsigned int global_color_calibrate[6][4];
-extern char global_color_sensor_count;
-extern char global_color_filter;
+extern volatile unsigned int global_color_value[6][4];
+extern volatile unsigned int global_color_calibrate[6][4];
+extern volatile char global_color_sensor_count;
+extern volatile char global_color_filter;
 extern volatile float global_desired_angle;
 
 /* ---INTERRUPT SERVICE ROUTINES--- */
@@ -69,27 +69,29 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 ISR(PORTA_INT0_vect)	// LEFT BUMPER
 {
 	switch (global_program)
-        {
-                case LINE_FOLLOW:
-                        motor_disable();
-                        led_set(RED);
-                        break;
-                case BOUNCE:
-                        global_state = REVERSE_LEFT;
-        }
+    {
+        case LINE_FOLLOW:
+            motor_disable();
+            led_set(RED);
+            break;
+        case BOUNCE:
+            global_state = REVERSE_LEFT;
+			break;
+    }
 }
 
 ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 {
 	switch (global_program)
-        {
-                case LINE_FOLLOW:
-                        motor_disable();
-                        led_set(RED);
-                        break;
-                case BOUNCE:
-                        global_state = REVERSE_RIGHT;
-        }
+    {
+        case LINE_FOLLOW:
+            motor_disable();
+            led_set(RED);
+            break;
+        case BOUNCE:
+            global_state = REVERSE_RIGHT;
+			break;
+    }
 }
 
 ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0

@@ -14,14 +14,17 @@
 #include "color.h"
 #include "usart.h"
 #include "led.h"
+#include "motor.h"
 
 /* ---GLOBAL VARIABLES--- */
-unsigned int global_color_value[6][4];
-unsigned int global_color_calibrate[6][4];
-float global_color_change[6][4];
-char global_color_sensor_count;
-char global_color_filter;
+volatile unsigned int global_color_value[6][4];
+volatile unsigned int global_color_calibrate[6][4];
+volatile float global_color_change[6][4];
+volatile char global_color_sensor_count;
+volatile char global_color_filter;
 extern volatile char global_state;
+volatile float global_color_threshold[4];
+extern volatile float global_desired_angle;
 
 /* ---FUNCTION DEFINITIONS--- */
 void color_set_filter(char color)
@@ -136,12 +139,50 @@ void color_update(void)
 					color_set_filter(CLEAR);
 					global_color_filter = 0;
 					color_change();
-					color_check_for_red();
+					//color_check_for_red();
 					//color_transmit_value();
 					break;
 			}
 			break;
 	}
+}
+
+void color_compare(void)
+{
+	char i;
+	
+	for (i=0; i<4; i++)
+			{
+				if (global_color_change[0][i]>global_color_threshold[i])
+				{
+					global_state = HARD_LEFT;
+				}
+				else if (global_color_change[1][i]>global_color_threshold[i])
+				{
+					global_state = MID_LEFT;
+					global_desired_angle = valid_angle(global_desired_angle + 0.66);
+					led_set(BLUE);
+				}
+				else if (global_color_change[2][i]>global_color_threshold[i])
+				{
+					global_state = SLIGHT_LEFT;
+					global_desired_angle = valid_angle(global_desired_angle + 0.25);
+				}
+				else if (global_color_change[3][i]>global_color_threshold[i])
+				{
+					global_state = SLIGHT_RIGHT;
+					global_desired_angle = valid_angle(global_desired_angle - 0.25);
+				}
+				else if (global_color_change[4][i]>global_color_threshold[i])
+				{
+					global_state = MID_RIGHT;
+					global_desired_angle = valid_angle(global_desired_angle - 0.66);
+				}
+				else if (global_color_change[5][i]>global_color_threshold[i])
+				{
+					global_state = HARD_RIGHT;
+				}
+			}
 }
 
 void color_calibrate(void)
