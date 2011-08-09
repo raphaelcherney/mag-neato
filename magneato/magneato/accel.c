@@ -12,6 +12,7 @@
 /* ---LOCAL HEADER FILES--- */
 #include "global.h"
 #include "accel.h"
+#include "spi.h"
 
 /* ---FUNCTION DEFINITIONS--- */
 void accel_init(void)
@@ -34,11 +35,11 @@ coordinate_3d accel_get(void)
 	
 	ADCA.CTRLA |= 0b00011100;				// start CH0-CH2 conversions
 	while(!(ADCA.INTFLAGS & 0b00000001));	// wait for CH0 interrupt flag
-	accel.x = (int) ADCA.CH0.RES;			// read ADC CH0 result
+	accel.x = ADCA.CH0.RES;					// read ADC result
 	while(!(ADCA.INTFLAGS & 0b00000010));	// wait for CH1 interrupt flag
-	accel.y = (int) ADCA.CH1.RES;			// read ADC CH1 result
+	accel.y = ADCA.CH1.RES;
 	while(!(ADCA.INTFLAGS & 0b00000100));	// wait for CH2 interrupt flag
-	accel.z = (int) ADCA.CH2.RES;			// read ADC CH2 result
+	accel.z = ADCA.CH2.RES;
 
 	return(accel);
 }
@@ -51,27 +52,25 @@ float accel_calculate_heading(coordinate_3d accel)
 	float Vref = Vdd / 1.6;
 	float deltaV = Vref * 0.05;;
 	float Vx, Vy, Vz;
-	float x, y; 
+	float x, y;
 	
 	Vx = ((float)accel.x * Vref) / 4096 - deltaV;
 	Vy = ((float)accel.y * Vref) / 4096 - deltaV;
 	Vz = ((float)accel.z * Vref) / 4096 - deltaV;
 	
-	Vzero = Vz;				// using the z-axis reading as a zero since it shouldn't really change (and there have been zero issues)
+	Vx = Vx - Vzero;
+	Vy = Vy - Vzero;
+	Vz = Vz - Vzero;
 	
-	Vx -= Vzero;
-	Vy -= Vzero;
-	Vz -= Vzero;
-	
-	x = -Vy;				// change sign due to board layout
+	x = -Vy;	// change sign due to board layout
 	y = -Vx;
 	
-	heading = atan2(y, x);	// heading will be between -pi and pi with 0 facing the right side of the board
+	heading = atan2(y, x);
 	
 	return(heading);
 }
 
-float accel_get_heading(void)
+float accel_get_heading(void)		// TODO: this function can be reprogrammed to run faster
 {
 	coordinate_3d accel;
 	float heading;
@@ -80,5 +79,12 @@ float accel_get_heading(void)
 	heading = accel_calculate_heading(accel);
 	
 	return(heading);
-	// return(accel_calculate_heading(accel_get());
+}
+
+void accel_write_register(char registerAddress, char value){
+  PORTC.OUTCLR = 0b00000010;	// set Chip Select pin low to signal the beginning of an SPI packet
+  spi_write(registerAddress);	// transfer the register address over SPI.
+  spi_write(value);				// transfer the desired register value over SPI.
+  //Set the Chip Select pin high to signal the end of an SPI packet.
+  digitalWrite(CS, HIGH);
 }

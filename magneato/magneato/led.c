@@ -32,7 +32,7 @@ void led_set(char led)
 			PORTE.OUTSET = 0b00001000;
 			break;
 		case ALL:
-			PORTE.OUTSET = 0b11111000;
+			PORTE.OUTCLR = 0b11111000;
 			break;
 	}	
 }
