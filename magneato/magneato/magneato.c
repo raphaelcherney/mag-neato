@@ -23,6 +23,7 @@
 #include "color.h"
 #include "usart.h"
 #include "ir.h"
+#include "spi.h"
 
 /* ---FUNCTION PROTOTYPES--- */
 void init(void);
@@ -34,101 +35,118 @@ void update_motor_state(char state);
 
 /* ---GLOBAL VARIABLES--- */
 volatile char global_state = STOP;
-volatile char global_program = STOP;
-extern volatile unsigned int global_color_value[6][4];
-extern volatile unsigned int global_color_calibrate[6][4];
-extern volatile float global_color_change[6][4];
+char global_program = STOP;
+extern unsigned int global_color_value[6][4];
+extern unsigned int global_color_calibrate[6][4];
+extern float global_color_change[6][4];
+extern char global_color_new;
 extern volatile signed int global_left_encoder;
 extern volatile signed int global_right_encoder;
-volatile float global_desired_angle;
-extern volatile float global_color_threshold[4];
-
+float volatile global_desired_angle = M_PI_4;
 
 /* ---MAIN FUNCTION--- */
 int main(void)
 {
-	volatile unsigned char i;
-	float heading;
-	coordinate_3d accelerations;
-	float threshold = 0.15;
-	
-	global_color_threshold[0] = threshold;
-	global_color_threshold[1] = threshold;
-	global_color_threshold[2] = threshold;
-	global_color_threshold[3] = threshold;
+	unsigned char i;
+	float threshold = 0.25;
 	
 	init();
 	led_clear(ALL);
+	
+	spi_enable();
+	spi_write();
+	
+	while(1)
+	{
+		
+	}
+	
 	//led_set(UNDER);
-	//_delay_ms(500);
-	//color_calibrate();
-	//_delay_ms(50);
-	global_program = 0;
+	//usart_init();
+	
+	//motor_encoder_drive(FORWARD, 40);
 	
 	while(1)
     {
-		{			
-			color_compare();
+		if (global_program == LINE_FOLLOW)
+		{
+			/*
 			if (global_state == START)
-			{	
+			{
 				_delay_ms(500);
 				color_calibrate();
-				global_desired_angle = accel_get_heading();
 				_delay_ms(50);
 				motor_enable();
-				global_state = FOLLOW_HEADING;
-				motor_follow_heading(global_desired_angle, MAX);
+				motor_drive(FORWARD, MAX, MAX);
+				global_state = STRAIGHT;
 			}
-			if (global_state == MID_LEFT || global_state == SLIGHT_LEFT || global_state == SLIGHT_RIGHT || global_state == MID_RIGHT)
+			for (i=0; i<4; i++)
 			{
-				motor_follow_heading(global_desired_angle, MAX);
+				if (global_color_change[0][i]>threshold)
+				{
+					update_motor_state(HARD_LEFT);
+				}
+				else if (global_color_change[1][i]>threshold)
+				{
+					update_motor_state(MID_LEFT);
+				}
+				else if (global_color_change[2][i]>threshold)
+				{
+					update_motor_state(SLIGHT_LEFT);
+				}
+				else if (global_color_change[3][i]>threshold)
+				{
+					update_motor_state(SLIGHT_RIGHT);
+				}
+				else if (global_color_change[4][i]>threshold)
+				{
+					update_motor_state(MID_RIGHT);
+				}
+				else if (global_color_change[5][i]>threshold)
+				{
+					update_motor_state(HARD_RIGHT);
+				}
 			}
-			else if (global_state == HARD_LEFT)
-			{
-				motor_set_power(LEFT, STOP, 0);
-				motor_set_power(RIGHT, FORWARD, MAX);
-			}
-			else if (global_state == HARD_RIGHT)
-			{
-				motor_set_power(LEFT, FORWARD, MAX);
-				motor_set_power(RIGHT, STOP, 0);
-			}
-			
+			*/
+			motor_drive(REVERSE, MAX, MAX);
+			//motor_set_power(LEFT, FORWARD, MAX);
+			//motor_set_power(RIGHT, FORWARD, MAX);
 		}
 		else if (global_program == BOUNCE)
-                {
-                        if (global_state == REVERSE_LEFT || global_state == REVERSE_RIGHT)
-                        {
-                                //motor_encoder_drive(REVERSE, 20);
-                                motor_drive(REVERSE, MAX, MAX);
-                                motor_enable();
-                                _delay_ms(400);
-                                switch (global_state)
-                                {
-                                        case REVERSE_LEFT:
-                                                global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
-                                                break;
-                                        case REVERSE_RIGHT:
-                                                global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
-                                                break;
-                                }
-                                global_state = TURN;
-                        }
-                        else if (global_state == TURN)
-                        {
-                                motor_turn_to_angle(global_desired_angle);
-                                global_state = FOLLOW_HEADING;
-                        }
-                        else if (global_state == FOLLOW_HEADING)
-                        {
-                                motor_follow_heading(global_desired_angle, MAX);
-                        }
-                        else if (global_state == STRAIGHT)
-                        {
-                                motor_encoder_drive(FORWARD, 40);
-                                global_state = STOP;
-                        }
-                }
+		{
+			if (global_state == REVERSE_LEFT || global_state == REVERSE_RIGHT)
+			{
+				//motor_encoder_drive(REVERSE, 20);
+				motor_drive(REVERSE, MAX, MAX);
+				motor_enable();
+				_delay_ms(400);
+				switch (global_state)
+				{
+					case REVERSE_LEFT:
+						global_desired_angle = valid_angle(global_desired_angle - M_PI_2);
+						break;
+					case REVERSE_RIGHT:
+						global_desired_angle = valid_angle(global_desired_angle + M_PI_2);
+						break;
+				}
+				global_state = TURN;
+			}
+			else if (global_state == TURN)
+			{
+				motor_turn_to_angle(global_desired_angle);
+				global_state = FOLLOW_HEADING;
+			}
+			else if (global_state == FOLLOW_HEADING)
+			{
+				motor_follow_heading(global_desired_angle, MAX);
+			}
+			else if (global_state == STRAIGHT)
+			{
+				motor_encoder_drive(FORWARD, 40);
+				global_state = STOP;
+			}
+		}
+		i++;
     }
 }
 
@@ -141,9 +159,10 @@ void init(void)
 	clock_set_32mhz_crystal();
 	
 	/* ---GPIO INIT--- */
-	PORTA.DIR = 0b00000001;		// PA0 as output, rest as inputs
+	PORTA.DIR = 0b00000001;		// PA0 as input, rest as outputs
 	PORTB.DIR = 0b00000000;		// all PORTB as inputs
-	PORTC.DIR = 0b00000000;		// all PORTC as inputs
+	PORTC.DIR = 0b10110010;		// setup PORTC for SPI
+	PORTC.OUTSET = 0b00000010;	// set CS high
 	PORTD.DIR = 0b11111111;		// all PORTD as outputs
 	PORTE.DIR = 0b11111000;		// PE0-PE2 as inputs, rest as outputs
 	PORTF.DIR = 0b01111000;		// PF3-PF6 as outputs, rest as inputs
@@ -174,16 +193,13 @@ void init(void)
 	
 	/* ---ENCODERS--- */
 	motor_encoder_enable();
-	motor_encoder_set_threshold(30);
+	motor_encoder_set_threshold(6);
 	
 	/* ---ACCELEROMETER--- */
 	accel_init();
 	
 	/* ---COLOR SENSORS--- */
 	color_init();
-	
-	/* ---USART--- */
-	usart_init();
 	
 	/* ---REFLECTIVE IR SENSORS--- */
 	ACA.AC0MUXCTRL = 0b00101111;	// use PA5 and scaled VCC for ACA0

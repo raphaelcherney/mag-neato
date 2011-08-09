@@ -23,7 +23,7 @@ typedef struct {
 #define bit_set(address, mask) ((address) |= (mask)) 
 #define bit_clear(address, mask) ((address) &= ~(mask)) 
 #define bit_flip(address, mask) ((address) ^= (mask)) 
-#define BIT(x) (0x01 << (x)) 
+#define BIT(x) (0x01 << (x))
 
 /* ---DEFINE CONSTANTS--- */
 #define STOP 0		// motor directions
@@ -67,9 +67,7 @@ typedef struct {
 #define REVERSE_LEFT 33
 #define REVERSE_RIGHT 34
 #define START 35
-//#define NEWLINE 12
-#define NEWLINE '\n'
-#define TAB 9
+#define NEWLINE 9
 
 /* ---FUNCTION PROTOTYPES--- */
 float percent_change(float number, float reference);
