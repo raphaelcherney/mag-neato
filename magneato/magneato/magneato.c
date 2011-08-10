@@ -49,16 +49,20 @@ int main(void)
 {
 	unsigned char i;
 	float threshold = 0.25;
+	coordinate_3d outputs;
 	
 	init();
 	led_clear(ALL);
 	
 	spi_enable();
-	spi_write();
+	//spi_write_register(0x31, 0x01);
 	
 	while(1)
 	{
-		
+		spi_write_register((0x00 | 0x80), 0);
+		_delay_us(100);
+		//spi_write_register((0x33 | 0x80), 0);
+		//_delay_ms(5);
 	}
 	
 	//led_set(UNDER);

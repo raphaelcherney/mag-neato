@@ -11,7 +11,9 @@
 
 /* ---FUNCTION PROTOTYPES--- */
 void spi_enable(void);
-void spi_write(unsigned char data);
+void spi_transmit(unsigned char data);
 char spi_read(void);
+void spi_write_register(char register_address, char data);
+void spi_read_register(char register_address, int num_bytes, char *data);
 
 #endif /* SPI_H */
