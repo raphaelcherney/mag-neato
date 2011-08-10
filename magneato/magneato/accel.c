@@ -81,10 +81,27 @@ float accel_get_heading(void)		// TODO: this function can be reprogrammed to run
 	return(heading);
 }
 
-void accel_write_register(char registerAddress, char value){
-  PORTC.OUTCLR = 0b00000010;	// set Chip Select pin low to signal the beginning of an SPI packet
-  spi_write(registerAddress);	// transfer the register address over SPI.
-  spi_write(value);				// transfer the desired register value over SPI.
-  //Set the Chip Select pin high to signal the end of an SPI packet.
-  digitalWrite(CS, HIGH);
+coordinate_3d accel_get_spi(void)
+{
+	char POWER_CTL = 0x2D;
+	char DATA_FORMAT = 0x31;
+	char DATAX0 = 0x32;			//X-Axis Data 0
+	char DATAX1 = 0x33;			//X-Axis Data 1
+	char DATAY0 = 0x34;			//Y-Axis Data 0
+	char DATAY1 = 0x35;			//Y-Axis Data 1
+	char DATAZ0 = 0x36;			//Z-Axis Data 0
+	char DATAZ1 = 0x37;			//Z-Axis Data 1
+	char values[10];
+	int x, y, z;
+	coordinate_3d accel;
+	
+	spi_write_register(0x31, 0x01);
+	spi_write_register(0x2D, 0x08);	// put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register
+
+	spi_read_register(DATAX0, 6, values);
+	accel.x = ((int)values[1]<<8)|(int)values[0];
+	accel.y = ((int)values[3]<<8)|(int)values[2];
+	accel.z = ((int)values[5]<<8)|(int)values[4];
+	
+	return accel;
 }
