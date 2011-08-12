@@ -27,6 +27,7 @@ volatile float global_color_threshold[4];
 extern volatile float global_desired_angle;
 
 /* ---FUNCTION DEFINITIONS--- */
+// Set the filter to use with the color sensors.  Choices are: RED, BLUE, CLEAR, or GREEN.
 void color_set_filter(char color)
 {
 	switch (color)
@@ -48,6 +49,7 @@ void color_set_filter(char color)
 	}	
 }
 
+// Set the frequency scale you want the color sensors to output.  Choices are: TWO_PERCENT, TWENTY_PERCENT, ONE_HUNDRED_PERCENT, or OFF.
 void color_set_frequency(char scale)
 {
 	switch (scale)
@@ -69,6 +71,8 @@ void color_set_frequency(char scale)
 	}	
 }
 
+// Initialize the color sensors to take a reading every 1ms.  TCE1 is used to trigger the reading and update which sensor should be measured.
+//  TCE0 is used to take the actual measurement based on CH0 input
 void color_init(void)
 {
 	color_set_frequency(ONE_HUNDRED_PERCENT);
@@ -88,6 +92,7 @@ void color_init(void)
 	global_color_filter = 0;
 }
 
+// Update which color is being sensed (function is called many times per second)
 void color_update(void)
 {
 	switch (global_color_sensor_count)
@@ -147,6 +152,7 @@ void color_update(void)
 	}
 }
 
+// A simple test function changing the states based on which sensors see lines
 void color_compare(void)
 {
 	char i;
@@ -185,6 +191,7 @@ void color_compare(void)
 			}
 }
 
+// Save the current sensor readings into the array global_color_calibrate
 void color_calibrate(void)
 {
 	char i, j;
@@ -198,6 +205,7 @@ void color_calibrate(void)
 	}
 }
 
+// Calculate the percent change between the current readings and the array global_color_calibrate and save it into global_color_change
 void color_change(void)
 {
 	char i, j;
@@ -211,6 +219,8 @@ void color_change(void)
 	}
 }
 
+// A simple function that checks if there is a stronger red signal than blue or green and reacts accordingly
+// TODO: this function should be rewritten to be actually useful :-)
 void color_check_for_red(void)
 {
 	int i, j;
@@ -245,7 +255,6 @@ void color_check_for_red(void)
 		}
 	}	
 	*/
-	led_set(BLUE);
 	for (i=0; i<2; i++)
 	{
 		if ((global_color_value[i][1]<global_color_value[i][2]) && (global_color_value[i][1]<global_color_value[i][3]))
@@ -266,6 +275,7 @@ void color_check_for_red(void)
 	}		
 }
 
+// Transmit the current color values over USART (can be read out through the terminal 9600 baud)
 void color_transmit_value(void)
 {
 	char string[6];
@@ -356,6 +366,7 @@ void color_transmit_value(void)
 	usart_transmit_char(NEWLINE);
 }
 
+// Transmit the percent change array over USART
 void color_transmit_change(void)
 {
 	char string[12];

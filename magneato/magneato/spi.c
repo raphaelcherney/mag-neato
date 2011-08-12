@@ -15,6 +15,7 @@
 #include "spi.h"
 
 /* ---FUNCTION DEFINITIONS--- */
+// Enable SPI communication through the expansion port and begin configuring the ADXL345
 void spi_enable(void)
 {
 	char out[1];
@@ -26,7 +27,7 @@ void spi_enable(void)
 	//cleaner:
 	//SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_MODE_3_gc | SPI_PRESCALER_DIV64_gc;
 	
-	while (out[1] != 0x08)
+	while (out[0] != 0x08)
 	{
 		spi_write_register(0x2D, 0x08);	// turn on measurement
 		_delay_ms(5);
@@ -34,8 +35,10 @@ void spi_enable(void)
 		_delay_ms(1000);
 	}
 	
+	spi_write_register(0x31, 0x08);	// set full range
 }
 
+// Transmit a character over SPI and wait until the transmission finishes
 void spi_transmit(unsigned char data)
 {
 	char temp = SPIC.STATUS;					// clear the interrupt flag
@@ -43,12 +46,14 @@ void spi_transmit(unsigned char data)
 	while (!bit_check(SPIC.STATUS, BIT(7)));	// wait for transmission to end
 }
 
+// Run the clock and read the next character
 char spi_read(void)
 {
 	spi_transmit(0);		// send empty data to run clock
 	return SPIC.DATA;		// read out data
 }
 
+// Write to the ADXL345 registers (two-byte SPI messages)
 void spi_write_register(char register_address, char data)
 {
   PORTC.OUTCLR = 0b00000010;		// set CS pin low to signal the beginning of an SPI packet
@@ -59,6 +64,7 @@ void spi_write_register(char register_address, char data)
   PORTC.OUTSET = 0b00000010;		// set the CS pin high to signal the end of SPI packet
 }
 
+// Read out num_bytes worth of information starting with the register at register_address to the array data.
 void spi_read_register(char register_address, int num_bytes, char *data)
 {
 	char address = 0x80 | register_address;			// since we're performing a read operation, the most significant bit of the register address should be set
@@ -72,5 +78,3 @@ void spi_read_register(char register_address, int num_bytes, char *data)
 	}
 	PORTC.OUTSET = 0b00000010;		// set the CS pin high
 }
-
-// TODO: call "spi_transfer" instead, add "spi_message"

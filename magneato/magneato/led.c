@@ -12,6 +12,7 @@
 #include "global.h"
 
 /* ---FUNCTION DEFINITIONS--- */
+// Set LEDs on.  Choices are: RED, YELLOW, GREEN, BLUE, UNDER, and ALL
 void led_set(char led)
 {
 	switch (led)
@@ -37,6 +38,7 @@ void led_set(char led)
 	}	
 }
 
+// Toggle given LEDs.  Choices are: RED, YELLOW, GREEN, BLUE, UNDER, and ALL
 void led_toggle(char led)
 {
 	switch (led)
@@ -62,6 +64,7 @@ void led_toggle(char led)
 	}
 }
 
+// Turn LEDs off.  Choices are: RED, YELLOW, GREEN, BLUE, UNDER, and ALL
 void led_clear(char led)
 {
 	switch (led)

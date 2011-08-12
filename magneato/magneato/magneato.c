@@ -27,10 +27,6 @@
 
 /* ---FUNCTION PROTOTYPES--- */
 void init(void);
-void ir_enable(void);
-void ir_disable(void);
-void ir_set_threshold(char level);
-void ir_change_threshold(signed char amount);
 void update_motor_state(char state);
 
 /* ---GLOBAL VARIABLES--- */
@@ -55,14 +51,10 @@ int main(void)
 	led_clear(ALL);
 	
 	spi_enable();
-	//spi_write_register(0x31, 0x01);
 	
 	while(1)
 	{
-		spi_write_register((0x00 | 0x80), 0);
-		_delay_us(100);
-		//spi_write_register((0x33 | 0x80), 0);
-		//_delay_ms(5);
+		outputs = accel_get_spi();
 	}
 	
 	//led_set(UNDER);
@@ -206,11 +198,7 @@ void init(void)
 	color_init();
 	
 	/* ---REFLECTIVE IR SENSORS--- */
-	ACA.AC0MUXCTRL = 0b00101111;	// use PA5 and scaled VCC for ACA0
-	ACA.AC1MUXCTRL = 0b00110111;	// use PA6 and scaled VCC for ACA1
-	ACA.CTRLB = 63;					// set initial scaled VCC level
-	//ACA.AC0CTRL = 0b11101101;		// trigger MID level interrupt on rising edge using high-speed mode and large hysteresis
-	//ACA.AC1CTRL = 0b11101101;		// enable ACA1 with same settings
+	ir_init();
 }
 
 void update_motor_state(char state)

@@ -10,6 +10,7 @@
 #define IR_H
 
 /* ---FUNCTION PROTOTYPES--- */
+void ir_init(void);
 void ir_enable(void);
 void ir_disable(void);
 void ir_set_threshold(char level);

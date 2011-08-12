@@ -25,6 +25,7 @@ extern unsigned int global_color_value[6][4];
 extern float global_color_change[6][4];
 
 /* ---FUNCTION DEFINITIONS--- */
+// Enables the motors.  Must be run before the robot will move.
 void motor_enable(void)
 {
 	TCD0.CTRLA = 0b00000001;	// prescaler: clk/1
@@ -35,11 +36,13 @@ void motor_enable(void)
 	PORTD.OUTSET = 0b01000000;	// enable motor controller
 }
 
+// Disables the motor controller, stopping the motor.
 void motor_disable(void)
 {
 	PORTD.OUTCLR = 0b01000000;	// disable motor controller
 }
 
+// Set the direction and relative power (PWM output) for a given motor.  Typical usage: motor_set_power(LEFT, REVERSE, MAX)
 void motor_set_power(char motor, char direction, unsigned int power)
 {
 	switch (motor)
@@ -81,6 +84,7 @@ void motor_set_power(char motor, char direction, unsigned int power)
 	}
 }
 
+// Set both motors at the same time.  Typical usage: motor_drive(FORWARD, MAX, MAX);
 void motor_drive(char direction, unsigned int left_motor_power, unsigned int right_motor_power)
 {
 	TCD0.CCA = left_motor_power;
@@ -99,8 +103,11 @@ void motor_drive(char direction, unsigned int left_motor_power, unsigned int rig
 			PORTD.OUTCLR = 0b00011110;
 			break;
 	}
+	motor_enable();
 }
 
+// PI control loop that will run until the motor is facing a desired heading as given by the accelerometer
+// TODO: be able to adjust allowable error
 void motor_turn_to_angle(float desired)
 {
 	float actual, error, control;
@@ -130,6 +137,7 @@ void motor_turn_to_angle(float desired)
 	motor_disable();
 }
 
+// PI loop that will follow a given heading.
 void motor_follow_heading(float desired_heading, unsigned int base_power)
 {
 	float actual, error, control;
@@ -159,6 +167,7 @@ void motor_follow_heading(float desired_heading, unsigned int base_power)
 	motor_disable();
 }
 
+// Enable the motor encoders.
 void motor_encoder_enable(void)
 {
 	PORTD.OUTSET = 0b10000000;		// turn on encoder emitter
@@ -171,6 +180,7 @@ void motor_encoder_enable(void)
 	TCC1.CTRLA = 0b00000101;		// enable TCC1 with clk/64 (2 us period)
 }
 
+// Disable the motor encoders.
 void motor_encoder_disable(void)
 {
 	PORTD.OUTCLR = 0b10000000;		// turn off encoder emitter
@@ -180,11 +190,14 @@ void motor_encoder_disable(void)
 	TCC1.CTRLA = 0b00000000;		// disable TCC0
 }
 
+// Set the threshold voltage for counting a transition
 void motor_encoder_set_threshold(char level)
 {
 	ACB.CTRLB = level;
 }
 
+// Drive a certain number of counts
+// TODO: make this to more than just count a single wheels counts 
 void motor_encoder_drive(char direction, unsigned int counts)
 {
 	motor_drive(direction, MAX, MAX);

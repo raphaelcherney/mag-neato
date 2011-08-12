@@ -15,6 +15,7 @@
 #include "spi.h"
 
 /* ---FUNCTION DEFINITIONS--- */
+// Initialize ADC for reading from the on-board analog 3-axis accelerometer (ADXL335)
 void accel_init(void)
 {
 	ADCA.CTRLA = 0b00000001;			// enable ADCA
@@ -29,6 +30,7 @@ void accel_init(void)
 	// TODO: wait for ADC to start up
 }
 
+// Get acceleration readings from the accelerometer, return a coordinate with the results
 coordinate_3d accel_get(void)
 {	
 	coordinate_3d accel;
@@ -44,6 +46,8 @@ coordinate_3d accel_get(void)
 	return(accel);
 }
 
+// Calculate the heading of the robot given a coordinate_3d with raw sensor data
+//	results are between pi and -pi with zero facing the right side of the board
 float accel_calculate_heading(coordinate_3d accel)
 {
 	float heading;
@@ -70,6 +74,7 @@ float accel_calculate_heading(coordinate_3d accel)
 	return(heading);
 }
 
+// Find and return the current heading
 float accel_get_heading(void)		// TODO: this function can be reprogrammed to run faster
 {
 	coordinate_3d accel;
@@ -81,6 +86,7 @@ float accel_get_heading(void)		// TODO: this function can be reprogrammed to run
 	return(heading);
 }
 
+// Get the acceleration using an off-board ADXL345
 coordinate_3d accel_get_spi(void)
 {
 	char POWER_CTL = 0x2D;
@@ -95,8 +101,8 @@ coordinate_3d accel_get_spi(void)
 	int x, y, z;
 	coordinate_3d accel;
 	
-	spi_write_register(0x31, 0x01);
-	spi_write_register(0x2D, 0x08);	// put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register
+	//spi_write_register(0x31, 0x01);
+	//spi_write_register(0x2D, 0x08);	// put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register
 
 	spi_read_register(DATAX0, 6, values);
 	accel.x = ((int)values[1]<<8)|(int)values[0];
