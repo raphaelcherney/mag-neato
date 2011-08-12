@@ -13,6 +13,7 @@
 #include "usart.h"
 
 /* ---FUNCTION DEFINITIONS--- */
+// Initialize USART communications at 9600 baud
 void usart_init(void)
 {
 	PORTC.OUTSET = 0b00001000;		// set TXD0 pin (PC3) high
@@ -21,12 +22,14 @@ void usart_init(void)
 	USARTC0.CTRLB = 0b00001000;		// enable transmitter
 }
 
+// Transmit a character over USART
 void usart_transmit_char(unsigned char data)
 {
 	while (!(USARTC0.STATUS & 0b00100000));	// wait until transmit buffer is ready to receive new data
 	USARTC0.DATA = data;					// send the data
 }
 
+// Transmit a string representation of an integer over USART
 void usart_transmit_int(int data)
 {
 	char string[6];
@@ -35,6 +38,7 @@ void usart_transmit_int(int data)
 	usart_transmit_string(string);
 }
 
+// Transmit a string representation of an unsigned integer over USART
 void usart_transmit_unsigned_int(unsigned int data)
 {
 	char string[6];
@@ -43,6 +47,7 @@ void usart_transmit_unsigned_int(unsigned int data)
 	usart_transmit_string(string);
 }
 
+// Transmit a string representation of an float over USART
 void usart_transmit_float(float data)
 {
 	char string[10];
@@ -51,6 +56,7 @@ void usart_transmit_float(float data)
 	usart_transmit_string(string);
 }
 
+// Transmit a string over USART
 void usart_transmit_string(const char *str)
 {
 	while (*str)
@@ -59,4 +65,3 @@ void usart_transmit_string(const char *str)
 		str++;
 	}
 }
-

@@ -30,7 +30,8 @@ extern char global_color_filter;
 extern volatile float global_desired_angle;
 
 /* ---INTERRUPT SERVICE ROUTINES--- */
-ISR(ACB_AC0_vect)		// LEFT WHEEL ENCODER
+// LEFT WHEEL ENCODER
+ISR(ACB_AC0_vect)		
 {
 	unsigned int minimum_time;
 	
@@ -47,7 +48,8 @@ ISR(ACB_AC0_vect)		// LEFT WHEEL ENCODER
 	TCC0.CNT = 0;						// reset counter
 }
 
-ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
+// RIGHT WHEEL ENCODER
+ISR(ACB_AC1_vect)
 {
 	unsigned int minimum_time;
 	
@@ -64,7 +66,8 @@ ISR(ACB_AC1_vect)		// RIGHT WHEEL ENCODER
 	TCC1.CNT = 0;						// reset counter
 }
 
-ISR(PORTA_INT0_vect)	// LEFT BUMPER
+// LEFT BUMPER
+ISR(PORTA_INT0_vect)
 {
 	motor_drive(STOP, 0, 0);	// stop
 	motor_disable();
@@ -80,7 +83,8 @@ ISR(PORTA_INT0_vect)	// LEFT BUMPER
 	}
 }
 
-ISR(PORTF_INT0_vect)	// RIGHT BUMPER
+// RIGHT BUMPER
+ISR(PORTF_INT0_vect)
 {
 	motor_drive(STOP, 0, 0);
 	motor_disable();
@@ -96,7 +100,8 @@ ISR(PORTF_INT0_vect)	// RIGHT BUMPER
 	}
 }
 
-ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
+// USER PUSHBUTTON SW0
+ISR(PORTB_INT0_vect)
 {
 	if (global_program == STOP)
 	{
@@ -112,7 +117,8 @@ ISR(PORTB_INT0_vect)	// USER PUSHBUTTON SW0
 	}
 }
 
-ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
+// USER PUSHBUTTON SW1
+ISR(PORTB_INT1_vect)
 {
 	if (global_program == STOP)
 	{
@@ -136,7 +142,8 @@ ISR(PORTB_INT1_vect)	// USER PUSHBUTTON SW1
 }
 
 /*
-ISR(ACA_AC0_vect)		// LEFT REFLECTIVE IR SENSOR
+// LEFT REFLECTIVE IR SENSOR
+ISR(ACA_AC0_vect)
 {
 	if (global_state == LEFT || global_state == STRAIGHT)
 	{
@@ -148,7 +155,8 @@ ISR(ACA_AC0_vect)		// LEFT REFLECTIVE IR SENSOR
 	}	
 }
 
-ISR(ACA_AC1_vect)		// RIGHT REFLECTIVE IR SENSOR
+// RIGHT REFLECTIVE IR SENSOR
+ISR(ACA_AC1_vect)
 {
 	if (global_state == RIGHT || global_state == STRAIGHT)
 	{
@@ -161,13 +169,15 @@ ISR(ACA_AC1_vect)		// RIGHT REFLECTIVE IR SENSOR
 }
 */
 
-ISR(TCE1_CCA_vect)		// TCE1 CCA INTERRUPT (COLOR)
+// TCE1 CCA INTERRUPT (COLOR)
+ISR(TCE1_CCA_vect)
 {
 	color_update();
 	TCE1.CCA = 0;		// reset counter
 }
 
 /* ---FUNCTION DEFINITIONS--- */
+// Enable global interrupts.  Choices are: LOW, MID, HIGH, and ALL.
 void interrupt_enable(char level)
 {
 	sei();						// enable global interrupts
@@ -188,6 +198,7 @@ void interrupt_enable(char level)
 	}
 }
 
+// Disable global interrupts.  Choices are: LOW, MID, HIGH, and ALL.
 void interrupt_disable(char level)
 {
 	switch (level)
