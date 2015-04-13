@@ -1,0 +1,1 @@
+This is the code for the initial Magneato prototype (built around an Xmega processor).
